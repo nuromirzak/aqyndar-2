@@ -9,7 +9,7 @@ import org.nurma.aqyndar.dto.response.JwtResponse;
 import org.nurma.aqyndar.dto.response.SignupResponse;
 import org.nurma.aqyndar.entity.Role;
 import org.nurma.aqyndar.entity.User;
-import org.nurma.aqyndar.exception.AuthenticationException;
+import org.nurma.aqyndar.exception.CustomAuthenticationException;
 import org.nurma.aqyndar.exception.ValidationException;
 import org.nurma.aqyndar.security.JwtAuthentication;
 import org.nurma.aqyndar.security.JwtProvider;
@@ -35,14 +35,14 @@ public class AuthService {
 
     public JwtResponse signin(final SigninRequest authRequest) {
         final User user = userService.getByEmail(authRequest.getEmail())
-                .orElseThrow(() -> new AuthenticationException(USER_NOT_FOUND.formatted(authRequest.getEmail())));
+                .orElseThrow(() -> new CustomAuthenticationException(USER_NOT_FOUND.formatted(authRequest.getEmail())));
         if (user.getPassword().equals(authRequest.getPassword())) {
             final String accessToken = jwtProvider.generateAccessToken(user);
             final String refreshToken = jwtProvider.generateRefreshToken(user);
             refreshStorage.put(user.getEmail(), refreshToken);
             return new JwtResponse(accessToken, refreshToken);
         } else {
-            throw new AuthenticationException(INVALID_PASSWORD);
+            throw new CustomAuthenticationException(INVALID_PASSWORD);
         }
     }
 
@@ -53,12 +53,12 @@ public class AuthService {
             final String saveRefreshToken = refreshStorage.get(email);
             if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
                 final User user = userService.getByEmail(email)
-                        .orElseThrow(() -> new AuthenticationException(USER_NOT_FOUND.formatted(email)));
+                        .orElseThrow(() -> new CustomAuthenticationException(USER_NOT_FOUND.formatted(email)));
                 final String accessToken = jwtProvider.generateAccessToken(user);
                 return new JwtResponse(accessToken, null);
             }
         }
-        throw new AuthenticationException("Invalid refresh token");
+        throw new CustomAuthenticationException("Invalid refresh token");
     }
 
     public JwtAuthentication getAuthInfo() {
