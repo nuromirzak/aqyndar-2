@@ -17,3 +17,7 @@ jwt:
   secret:
     access: ${JWT_ACCESS_SECRET}
     refresh: ${JWT_REFRESH_SECRET}
+
+logging:
+  file:
+    path: logs

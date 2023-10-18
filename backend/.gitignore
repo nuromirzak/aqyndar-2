@@ -38,3 +38,4 @@ out/
 
 ### Custom rules ###
 .env
+logs/

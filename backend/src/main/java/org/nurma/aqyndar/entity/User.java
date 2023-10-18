@@ -29,16 +29,16 @@ public class User {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true, nullable = false, length = 255)
     private String email;
 
-    @Column(name = "first_name")
+    @Column(name = "first_name", length = 255)
     private String firstName;
 
-    @Column(name = "password")
+    @Column(name = "password", length = 60)
     private String password;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private Date createdAt = new Date();
 
     @ManyToMany(fetch = FetchType.EAGER)

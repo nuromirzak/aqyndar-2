@@ -24,7 +24,11 @@ public class Role implements GrantedAuthority {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name",
+            unique = true,
+            length = 255,
+            updatable = false,
+            insertable = false)
     @Enumerated(EnumType.STRING)
     private RoleName name;
 

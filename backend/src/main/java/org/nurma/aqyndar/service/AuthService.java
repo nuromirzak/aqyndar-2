@@ -10,6 +10,7 @@ import org.nurma.aqyndar.dto.response.SignupResponse;
 import org.nurma.aqyndar.entity.Role;
 import org.nurma.aqyndar.entity.User;
 import org.nurma.aqyndar.exception.AuthenticationException;
+import org.nurma.aqyndar.exception.ValidationException;
 import org.nurma.aqyndar.security.JwtAuthentication;
 import org.nurma.aqyndar.security.JwtProvider;
 import org.springframework.security.core.Authentication;
@@ -26,6 +27,7 @@ import java.util.Set;
 public class AuthService {
     private static final String INVALID_PASSWORD = "Invalid password";
     private static final String USER_NOT_FOUND = "User with email %s not found";
+    private static final String USER_ALREADY_EXISTS = "User with email %s already exists";
     private final UserService userService;
     private final RoleService roleService;
     private final Map<String, String> refreshStorage = new HashMap<>();
@@ -64,11 +66,14 @@ public class AuthService {
         if (authentication instanceof JwtAuthentication) {
             return (JwtAuthentication) authentication;
         }
-        log.warn("{} is not JwtAuthentication", authentication);
         return new JwtAuthentication();
     }
 
     public SignupResponse signup(final SignupRequest signupRequest) {
+        if (userService.getByEmail(signupRequest.getEmail()).isPresent()) {
+            throw new ValidationException(USER_ALREADY_EXISTS.formatted(signupRequest.getEmail()));
+        }
+
         User user = new User();
         user.setEmail(signupRequest.getEmail());
         user.setFirstName(signupRequest.getFirstName());

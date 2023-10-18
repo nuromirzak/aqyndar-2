@@ -76,7 +76,7 @@ public class JwtProvider {
                     .parseSignedClaims(token);
             return true;
         } catch (JwtException jwtException) {
-            log.warn("Cannot parse jwt: {}", jwtException.getMessage());
+            log.info("Cannot parse jwt: {}", jwtException.getMessage());
         } catch (Exception e) {
             log.error("Critical error: {}", e.getMessage());
         }
