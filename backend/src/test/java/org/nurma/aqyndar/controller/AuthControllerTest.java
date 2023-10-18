@@ -96,12 +96,19 @@ class AuthControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void signin_Fail_NonExistingAccount() throws Exception {
+        signin(new SigninRequest(EMAIL, PASSWORD))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
+    }
+
+    @Test
     void refresh_success() throws Exception {
         SignupRequest signupRequest = new SignupRequest(EMAIL, PASSWORD, PASSWORD);
         signup_Success(signupRequest);
 
         JwtResponse jwtResponse = fromJson(
-                signin(new SigninRequest(EMAIL, PASSWORD)).andReturn(),
+                signin(new SigninRequest(EMAIL, PASSWORD)),
                 JwtResponse.class
         );
 
@@ -136,7 +143,7 @@ class AuthControllerTest extends AbstractControllerTest {
         signUp(signupRequest);
 
         JwtResponse jwtResponse = fromJson(
-                signin(new SigninRequest(EMAIL, PASSWORD)).andReturn(),
+                signin(new SigninRequest(EMAIL, PASSWORD)),
                 JwtResponse.class
         );
 

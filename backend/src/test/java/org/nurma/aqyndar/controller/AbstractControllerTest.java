@@ -2,6 +2,8 @@ package org.nurma.aqyndar.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.nurma.aqyndar.configuration.IntegrationEnvironment;
+import org.nurma.aqyndar.dto.request.CreateAuthorRequest;
+import org.nurma.aqyndar.dto.request.PatchAuthorRequest;
 import org.nurma.aqyndar.dto.request.SigninRequest;
 import org.nurma.aqyndar.dto.request.RefreshRequest;
 import org.nurma.aqyndar.dto.request.SignupRequest;
@@ -14,8 +16,10 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @SpringBootTest
@@ -51,8 +55,23 @@ public class AbstractControllerTest extends IntegrationEnvironment {
                 .andDo(print());
     }
 
-    protected <T> T fromJson(MvcResult result, Class<T> clazz) throws Exception {
-        String contentAsString = result.getResponse().getContentAsString();
+    private ResultActions performPatchWithToken(String url, Object request, String token) throws Exception {
+        String contentJson = objectMapper.writeValueAsString(request);
+        return mockMvc.perform(patch(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(contentJson))
+                        .andDo(print());
+    }
+
+    private ResultActions performDeleteWithToken(String url, String token) throws Exception {
+        return mockMvc.perform(delete(url)
+                        .header("Authorization", "Bearer " + token))
+                        .andDo(print());
+    }
+
+    protected <T> T fromJson(ResultActions resultActions, Class<T> clazz) throws Exception {
+        String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
         return objectMapper.readValue(contentAsString, clazz);
     }
 
@@ -70,5 +89,21 @@ public class AbstractControllerTest extends IntegrationEnvironment {
 
     protected ResultActions refresh(RefreshRequest refreshRequest) throws Exception {
         return performPost("/refresh", refreshRequest);
+    }
+
+    protected ResultActions getAuthor(int id) throws Exception {
+        return performGet("/author/" + id);
+    }
+
+    protected ResultActions createAuthor(CreateAuthorRequest request,  String token) throws Exception {
+        return performPostWithToken("/author", request, token);
+    }
+
+    protected ResultActions updateAuthor(int id, PatchAuthorRequest request, String token) throws Exception {
+        return performPatchWithToken("/author/" + id, request, token);
+    }
+
+    protected ResultActions deleteAuthor(int id, String token) throws Exception {
+        return performDeleteWithToken("/author/" + id, token);
     }
 }

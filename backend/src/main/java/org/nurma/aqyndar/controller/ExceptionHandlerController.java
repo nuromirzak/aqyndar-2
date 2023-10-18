@@ -3,7 +3,8 @@ package org.nurma.aqyndar.controller;
 import lombok.extern.log4j.Log4j2;
 import org.nurma.aqyndar.constant.ExceptionTitle;
 import org.nurma.aqyndar.dto.response.CustomErrorResponse;
-import org.nurma.aqyndar.exception.AuthenticationException;
+import org.nurma.aqyndar.exception.CustomAuthenticationException;
+import org.nurma.aqyndar.exception.ResourceNotFound;
 import org.nurma.aqyndar.exception.ValidationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -21,14 +22,19 @@ public class ExceptionHandlerController {
         return new ResponseEntity<>(customErrorResponse, status);
     }
 
-    @ExceptionHandler(value = {AuthenticationException.class})
-    public ResponseEntity<Object> handleAuthException(final AuthenticationException e) {
+    @ExceptionHandler(value = {CustomAuthenticationException.class})
+    public ResponseEntity<Object> handleAuthException(final CustomAuthenticationException e) {
         return buildResponse(ExceptionTitle.AUTHENTICATION, e.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(value = {ValidationException.class})
     public ResponseEntity<Object> handleValidationException(final ValidationException e) {
         return buildResponse(ExceptionTitle.VALIDATION, e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = {ResourceNotFound.class})
+    public ResponseEntity<Object> handleResourceNotFoundException(final ResourceNotFound e) {
+        return buildResponse(ExceptionTitle.NOT_FOUND, e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})

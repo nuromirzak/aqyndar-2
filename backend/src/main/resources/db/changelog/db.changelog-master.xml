@@ -42,9 +42,11 @@
             </column>
         </createTable>
 
-        <addForeignKeyConstraint baseTableName="tbl_user_role" baseColumnNames="tbl_user_id"
+        <addForeignKeyConstraint baseTableName="tbl_user_role"
+                                 baseColumnNames="tbl_user_id"
                                  constraintName="tbl_user_role_tbl_user_id_fk"
-                                 referencedTableName="tbl_user" referencedColumnNames="id"/>
+                                 referencedTableName="tbl_user"
+                                 referencedColumnNames="id"/>
 
         <addForeignKeyConstraint baseTableName="tbl_user_role"
                                  baseColumnNames="role_id"
@@ -60,6 +62,17 @@
         <insert tableName="role">
             <column name="name" value="USER"/>
         </insert>
+    </changeSet>
+
+    <changeSet id="create-author-table" author="Nurmukhammed">
+        <createTable tableName="author">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="full_name" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
+        </createTable>
     </changeSet>
 
 </databaseChangeLog>
