@@ -9,7 +9,10 @@
             <column name="id" type="int" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="email" type="varchar(255)"/>
+            <column name="email" type="varchar(255)">
+                <constraints nullable="false"
+                             unique="true"/>
+            </column>
             <column name="first_name" type="varchar(255)"/>
             <column name="password" type="varchar(60)"/>
             <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
