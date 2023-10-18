@@ -1,0 +1,52 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  build-backend:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Build with Gradle
+        working-directory: backend
+        run: ./gradlew build
+
+      - name: Upload checkstyle reports
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: checkstyle-reports
+          path: backend/build/reports/checkstyle/
+      
+      - name: Upload jacoco reports
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: jacoco-reports
+          path: backend/build/reports/jacoco/test/html/
+      
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-reports
+          path: backend/build/reports/tests/test/
+      
