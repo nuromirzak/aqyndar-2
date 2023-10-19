@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PatchAuthorRequest {
-    private String fullName;
+public class PatchPoemRequest {
+    private String title;
+    private String content;
+    private Integer authorId;
 }

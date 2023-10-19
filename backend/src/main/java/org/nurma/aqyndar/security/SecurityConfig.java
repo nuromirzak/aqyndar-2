@@ -27,6 +27,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(a -> a
                         .requestMatchers(HttpMethod.GET, "/who").permitAll()
                         .requestMatchers(HttpMethod.GET, "/author/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/poem/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/signup", "/signin", "/refresh").permitAll()
                         .anyRequest().authenticated()
                 )

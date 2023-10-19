@@ -3,23 +3,24 @@ package org.nurma.aqyndar.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.nurma.aqyndar.configuration.IntegrationEnvironment;
 import org.nurma.aqyndar.dto.request.CreateAuthorRequest;
+import org.nurma.aqyndar.dto.request.CreatePoemRequest;
 import org.nurma.aqyndar.dto.request.PatchAuthorRequest;
-import org.nurma.aqyndar.dto.request.SigninRequest;
+import org.nurma.aqyndar.dto.request.PatchPoemRequest;
 import org.nurma.aqyndar.dto.request.RefreshRequest;
+import org.nurma.aqyndar.dto.request.SigninRequest;
 import org.nurma.aqyndar.dto.request.SignupRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @SpringBootTest
@@ -38,7 +39,7 @@ public class AbstractControllerTest extends IntegrationEnvironment {
 
     private ResultActions performGetWithToken(String url, String token) throws Exception {
         return mockMvc.perform(get(url)
-                .header("Authorization", "Bearer " + token))
+                        .header("Authorization", "Bearer " + token))
                 .andDo(print());
     }
 
@@ -49,9 +50,9 @@ public class AbstractControllerTest extends IntegrationEnvironment {
     private ResultActions performPostWithToken(String url, Object request, String token) throws Exception {
         String contentJson = objectMapper.writeValueAsString(request);
         return mockMvc.perform(post(url)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + token)
-                .content(contentJson))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(contentJson))
                 .andDo(print());
     }
 
@@ -61,13 +62,13 @@ public class AbstractControllerTest extends IntegrationEnvironment {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + token)
                         .content(contentJson))
-                        .andDo(print());
+                .andDo(print());
     }
 
     private ResultActions performDeleteWithToken(String url, String token) throws Exception {
         return mockMvc.perform(delete(url)
                         .header("Authorization", "Bearer " + token))
-                        .andDo(print());
+                .andDo(print());
     }
 
     protected <T> T fromJson(ResultActions resultActions, Class<T> clazz) throws Exception {
@@ -95,7 +96,7 @@ public class AbstractControllerTest extends IntegrationEnvironment {
         return performGet("/author/" + id);
     }
 
-    protected ResultActions createAuthor(CreateAuthorRequest request,  String token) throws Exception {
+    protected ResultActions createAuthor(CreateAuthorRequest request, String token) throws Exception {
         return performPostWithToken("/author", request, token);
     }
 
@@ -105,5 +106,21 @@ public class AbstractControllerTest extends IntegrationEnvironment {
 
     protected ResultActions deleteAuthor(int id, String token) throws Exception {
         return performDeleteWithToken("/author/" + id, token);
+    }
+
+    protected ResultActions getPoem(int id) throws Exception {
+        return performGet("/poem/" + id);
+    }
+
+    protected ResultActions createPoem(CreatePoemRequest request, String token) throws Exception {
+        return performPostWithToken("/poem", request, token);
+    }
+
+    protected ResultActions updatePoem(int id, PatchPoemRequest request, String token) throws Exception {
+        return performPatchWithToken("/poem/" + id, request, token);
+    }
+
+    protected ResultActions deletePoem(int id, String token) throws Exception {
+        return performDeleteWithToken("/poem/" + id, token);
     }
 }
