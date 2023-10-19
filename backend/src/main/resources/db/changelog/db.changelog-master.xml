@@ -75,4 +75,27 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="create-poem-table" author="Nurmukhammed">
+        <createTable tableName="poem">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="title" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="content" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="author_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="poem"
+                                 baseColumnNames="author_id"
+                                 constraintName="poem_author_id_fk"
+                                 referencedTableName="author"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
 </databaseChangeLog>

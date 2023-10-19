@@ -6,8 +6,11 @@ import org.nurma.aqyndar.dto.request.PatchAuthorRequest;
 import org.nurma.aqyndar.dto.response.DeleteAuthorResponse;
 import org.nurma.aqyndar.dto.response.GetAuthorResponse;
 import org.nurma.aqyndar.entity.Author;
+import org.nurma.aqyndar.entity.Poem;
 import org.nurma.aqyndar.exception.ResourceNotFound;
+import org.nurma.aqyndar.exception.ValidationException;
 import org.nurma.aqyndar.repository.AuthorRepository;
+import org.nurma.aqyndar.repository.PoemRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -16,7 +19,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthorService {
     private static final String AUTHOR_NOT_FOUND = "Author with id %s not found";
+    private static final String AUTHOR_HAVE_POEM = "Author with id %s have poem";
     private final AuthorRepository authorRepository;
+    private final PoemRepository poemRepository;
 
     public GetAuthorResponse getAuthorById(final int id) {
         Optional<Author> authorOptional = authorRepository.findById(id);
@@ -73,9 +78,13 @@ public class AuthorService {
             throw new ResourceNotFound(AUTHOR_NOT_FOUND.formatted(id));
         }
 
-        Author author = authorOptional.get();
+        Poem poem = poemRepository.findByAuthorId(id);
 
-        authorRepository.delete(author);
+        if (poem != null) {
+            throw new ValidationException(AUTHOR_HAVE_POEM.formatted(id));
+        }
+
+        authorRepository.deleteById(id);
 
         return new DeleteAuthorResponse();
     }

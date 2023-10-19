@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.nurma.aqyndar.constant.ExceptionTitle;
 import org.nurma.aqyndar.dto.request.CreateAuthorRequest;
+import org.nurma.aqyndar.dto.request.CreatePoemRequest;
 import org.nurma.aqyndar.dto.request.PatchAuthorRequest;
 import org.nurma.aqyndar.dto.request.SigninRequest;
 import org.nurma.aqyndar.dto.request.SignupRequest;
@@ -24,6 +25,12 @@ class AuthorControllerTest extends AbstractControllerTest {
     private static final String FIRST_NAME = "Stevie";
     private static final String PASSWORD = "12345678";
     private static final String AUTHOR_FULL_NAME = "Abai Qunanbaiuly";
+    private static final String POEM_TITLE = "Qys";
+    private static final String POEM_CONTENT = """
+            Aq kiımdı, denelı, aq saqaldy,
+            Soqyr mylqau tanymas tırı jandy.
+            Üstı-basy aq qyrau tüsı suyq,
+            Basqan jerı syqyrlap kelıp qaldy.""";
     private static final String VERY_LONG_STRING = "a".repeat(500);
     private String token;
 
@@ -66,6 +73,15 @@ class AuthorControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.fullName").value(AUTHOR_FULL_NAME));
+    }
+
+    @Test
+    void createAuthorWithExistingName() throws Exception {
+        createAuthor(new CreateAuthorRequest(AUTHOR_FULL_NAME), token);
+
+        createAuthor(new CreateAuthorRequest(AUTHOR_FULL_NAME), token)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.VALIDATION)));
     }
 
     @Test
@@ -136,6 +152,20 @@ class AuthorControllerTest extends AbstractControllerTest {
         deleteAuthor(authorId, token)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("success"));
+    }
+
+    @Test
+    void deleteAuthorWithPoem() throws Exception {
+        int authorId = fromJson(
+                createAuthor(new CreateAuthorRequest(AUTHOR_FULL_NAME), token),
+                GetAuthorResponse.class)
+                .getId();
+
+        createPoem(new CreatePoemRequest(POEM_TITLE, POEM_CONTENT, authorId), token);
+
+        deleteAuthor(authorId, token)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.VALIDATION)));
     }
 
     @Test
