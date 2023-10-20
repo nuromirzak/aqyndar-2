@@ -3,7 +3,7 @@ package org.nurma.aqyndar.service;
 import lombok.RequiredArgsConstructor;
 import org.nurma.aqyndar.dto.request.CreateAuthorRequest;
 import org.nurma.aqyndar.dto.request.PatchAuthorRequest;
-import org.nurma.aqyndar.dto.response.DeleteAuthorResponse;
+import org.nurma.aqyndar.dto.response.DeleteResponse;
 import org.nurma.aqyndar.dto.response.GetAuthorResponse;
 import org.nurma.aqyndar.entity.Author;
 import org.nurma.aqyndar.entity.Poem;
@@ -71,7 +71,7 @@ public class AuthorService {
         return getAuthorResponse;
     }
 
-    public DeleteAuthorResponse deleteAuthor(final int id) {
+    public DeleteResponse deleteAuthor(final int id) {
         Optional<Author> authorOptional = authorRepository.findById(id);
 
         if (authorOptional.isEmpty()) {
@@ -86,6 +86,6 @@ public class AuthorService {
 
         authorRepository.deleteById(id);
 
-        return new DeleteAuthorResponse();
+        return new DeleteResponse();
     }
 }

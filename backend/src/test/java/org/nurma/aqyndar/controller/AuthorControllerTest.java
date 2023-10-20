@@ -76,6 +76,13 @@ class AuthorControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void createLongAuthorWithToken() throws Exception {
+        createAuthor(new CreateAuthorRequest(VERY_LONG_STRING), token)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.VALIDATION)));
+    }
+
+    @Test
     void createAuthorWithExistingName() throws Exception {
         createAuthor(new CreateAuthorRequest(AUTHOR_FULL_NAME), token);
 

@@ -3,11 +3,13 @@ package org.nurma.aqyndar.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.nurma.aqyndar.constant.ExceptionTitle;
+import org.nurma.aqyndar.dto.request.CreateAnnotationRequest;
 import org.nurma.aqyndar.dto.request.CreateAuthorRequest;
 import org.nurma.aqyndar.dto.request.CreatePoemRequest;
 import org.nurma.aqyndar.dto.request.PatchPoemRequest;
 import org.nurma.aqyndar.dto.request.SigninRequest;
 import org.nurma.aqyndar.dto.request.SignupRequest;
+import org.nurma.aqyndar.dto.response.GetAnnotationResponse;
 import org.nurma.aqyndar.dto.response.GetAuthorResponse;
 import org.nurma.aqyndar.dto.response.GetPoemResponse;
 import org.nurma.aqyndar.dto.response.JwtResponse;
@@ -15,7 +17,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -69,6 +76,66 @@ class PoemControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void getPoemWithAnnotations() throws Exception {
+        String POEM_CONTENT = """
+                Shall I compare [thee to a summer's day?](%d)
+                [Thou art more lovely and more temperate:](%d)
+                Rough winds do [shake the darling buds of May,](%d)
+                And summer's lease hath all too short a date:[Fleeting moments](-1)""";
+
+        String annotation1 = "Nature's beauty compared",
+                annotation2 = "Defining the beloved's qualities",
+                annotation3 = "Nature's imperfections";
+
+        int annotation1Id = fromJson(createAnnotation(new CreateAnnotationRequest(annotation1), token),
+                GetAnnotationResponse.class).getId();
+        int annotation2Id = fromJson(createAnnotation(new CreateAnnotationRequest(annotation2), token),
+                GetAnnotationResponse.class).getId();
+        int annotation3Id = fromJson(createAnnotation(new CreateAnnotationRequest(annotation3), token),
+                GetAnnotationResponse.class).getId();
+
+        POEM_CONTENT = String.format(POEM_CONTENT, annotation1Id, annotation2Id, annotation3Id);
+
+        int poemId = fromJson(createPoem(new CreatePoemRequest(POEM_TITLE, POEM_CONTENT, authorId), token),
+                GetPoemResponse.class).getId();
+
+        GetPoemResponse getPoemResponse = fromJson(getPoem(poemId), GetPoemResponse.class);
+
+        assertEquals(poemId, getPoemResponse.getId());
+        assertEquals(POEM_TITLE, getPoemResponse.getTitle());
+        assertEquals(POEM_CONTENT, getPoemResponse.getContent());
+        assertEquals(authorId, getPoemResponse.getAuthorId());
+
+        Map<Integer, GetAnnotationResponse> expectedAnnotations = new HashMap<>();
+        expectedAnnotations.put(annotation1Id, new GetAnnotationResponse(annotation1Id, annotation1));
+        expectedAnnotations.put(annotation2Id, new GetAnnotationResponse(annotation2Id, annotation2));
+        expectedAnnotations.put(annotation3Id, new GetAnnotationResponse(annotation3Id, annotation3));
+
+        assertEquals(expectedAnnotations, getPoemResponse.getAnnotations());
+        assertFalse(getPoemResponse.getAnnotations().containsKey(-1));
+    }
+
+    @Test
+    void getPoemWithNonExistingAnnotations() throws Exception {
+        int[] nonExistingIds = {(int) 1e9 + 1, (int) 1e9 + 2, (int) 1e9 + 3};
+        String POEM_CONTENT =
+                "[lorem[%d], ipsum[%d], dolor[%d]]".formatted(nonExistingIds[0], nonExistingIds[1], nonExistingIds[2]);
+
+        int poemId = fromJson(createPoem(new CreatePoemRequest(POEM_TITLE, POEM_CONTENT, authorId), token),
+                GetPoemResponse.class).getId();
+
+        GetPoemResponse getPoemResponse = fromJson(getPoem(poemId), GetPoemResponse.class);
+
+        assertEquals(poemId, getPoemResponse.getId());
+        assertEquals(POEM_TITLE, getPoemResponse.getTitle());
+        assertEquals(POEM_CONTENT, getPoemResponse.getContent());
+        assertEquals(authorId, getPoemResponse.getAuthorId());
+
+        Map<Integer, GetAnnotationResponse> expectedAnnotations = new HashMap<>();
+        assertEquals(expectedAnnotations, getPoemResponse.getAnnotations());
+    }
+
+    @Test
     void getNonExistingPoem() throws Exception {
         int nonExistingAuthorId = (int) 1e9;
 
@@ -85,6 +152,15 @@ class PoemControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.title").value(POEM_TITLE))
                 .andExpect(jsonPath("$.content").value(POEM_CONTENT))
                 .andExpect(jsonPath("$.authorId").value(authorId));
+    }
+
+    @Test
+    void createPoemWithOverlappingAnnotations() throws Exception {
+        String POEM_CONTENT = "[This [has [nested](6)](2)](1)";
+
+        createPoem(new CreatePoemRequest(POEM_TITLE, POEM_CONTENT, authorId), token)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.VALIDATION)));
     }
 
     @Test
@@ -134,7 +210,25 @@ class PoemControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void fllPatchPoemWithToken() throws Exception {
+    void patchPoemWithOverlappingAnnotations() throws Exception {
+        String OVERLAPPING_POEM_CONTENT = "[This [has [nested](6)](2)](1)";
+
+        int poemId = fromJson(
+                createPoem(new CreatePoemRequest(POEM_TITLE, POEM_CONTENT, authorId), token),
+                GetPoemResponse.class)
+                .getId();
+
+        PatchPoemRequest patchPoemRequest = PatchPoemRequest.builder()
+                .content(OVERLAPPING_POEM_CONTENT)
+                .build();
+
+        updatePoem(poemId, patchPoemRequest, token)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.VALIDATION)));
+    }
+
+    @Test
+    void fullPatchPoemWithToken() throws Exception {
         int newAuthorId = fromJson(
                 createAuthor(new CreateAuthorRequest("Pushkin"), token),
                 GetAuthorResponse.class)

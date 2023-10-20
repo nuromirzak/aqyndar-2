@@ -3,7 +3,7 @@ package org.nurma.aqyndar.controller;
 import lombok.RequiredArgsConstructor;
 import org.nurma.aqyndar.dto.request.CreatePoemRequest;
 import org.nurma.aqyndar.dto.request.PatchPoemRequest;
-import org.nurma.aqyndar.dto.response.DeletePoemResponse;
+import org.nurma.aqyndar.dto.response.DeleteResponse;
 import org.nurma.aqyndar.dto.response.GetPoemResponse;
 import org.nurma.aqyndar.service.PoemService;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,7 +38,7 @@ public class PoemController {
     }
 
     @DeleteMapping("/{id}")
-    public DeletePoemResponse deletePoem(@PathVariable("id") final int id) {
+    public DeleteResponse deletePoem(@PathVariable("id") final int id) {
         return poemService.deletePoem(id);
     }
 }
