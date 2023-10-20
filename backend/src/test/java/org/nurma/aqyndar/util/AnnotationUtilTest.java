@@ -48,6 +48,20 @@ class AnnotationUtilTest {
     }
 
     @Test
+    public void testLongBound() {
+        List<Integer> result =
+                AnnotationUtil.extractAnnotations("[text](%d)[text](%d)".formatted(Long.MAX_VALUE, Long.MIN_VALUE));
+        assertEquals(List.of(), result);
+    }
+
+    @Test
+    public void testBigIntegers() {
+        String bigInteger = "1".repeat(1000);
+        List<Integer> result = AnnotationUtil.extractAnnotations("[text](%s)".formatted(bigInteger));
+        assertEquals(List.of(), result);
+    }
+
+    @Test
     public void testUnclosedBrackets() {
         List<Integer> result = AnnotationUtil.extractAnnotations("[text(1)");
         assertEquals(List.of(), result);
@@ -74,6 +88,7 @@ class AnnotationUtilTest {
         }
         assertEquals(expected, result);
     }
+
     @Test
     public void testNoAnnotations() {
         assertFalse(AnnotationUtil.hasOverlappingAnnotations("This has no annotations."));
@@ -96,7 +111,8 @@ class AnnotationUtilTest {
 
     @Test
     public void testMultipleNestedAnnotations() {
-        assertTrue(AnnotationUtil.hasOverlappingAnnotations("[This [has](2)](1) [multiple [nested](4)](3) [annotations](5)"));
+        assertTrue(AnnotationUtil.hasOverlappingAnnotations(
+                "[This [has](2)](1) [multiple [nested](4)](3) [annotations](5)"));
     }
 
     @Test
