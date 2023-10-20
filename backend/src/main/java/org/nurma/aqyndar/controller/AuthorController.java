@@ -3,7 +3,7 @@ package org.nurma.aqyndar.controller;
 import lombok.RequiredArgsConstructor;
 import org.nurma.aqyndar.dto.request.CreateAuthorRequest;
 import org.nurma.aqyndar.dto.request.PatchAuthorRequest;
-import org.nurma.aqyndar.dto.response.DeleteAuthorResponse;
+import org.nurma.aqyndar.dto.response.DeleteResponse;
 import org.nurma.aqyndar.dto.response.GetAuthorResponse;
 import org.nurma.aqyndar.service.AuthorService;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,7 +38,7 @@ public class AuthorController {
     }
 
     @DeleteMapping("/{id}")
-    public DeleteAuthorResponse deleteAuthor(@PathVariable("id") final int id) {
+    public DeleteResponse deleteAuthor(@PathVariable("id") final int id) {
         return authorService.deleteAuthor(id);
     }
 }

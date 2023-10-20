@@ -2,8 +2,10 @@ package org.nurma.aqyndar.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.nurma.aqyndar.configuration.IntegrationEnvironment;
+import org.nurma.aqyndar.dto.request.CreateAnnotationRequest;
 import org.nurma.aqyndar.dto.request.CreateAuthorRequest;
 import org.nurma.aqyndar.dto.request.CreatePoemRequest;
+import org.nurma.aqyndar.dto.request.PatchAnnotationRequest;
 import org.nurma.aqyndar.dto.request.PatchAuthorRequest;
 import org.nurma.aqyndar.dto.request.PatchPoemRequest;
 import org.nurma.aqyndar.dto.request.RefreshRequest;
@@ -122,5 +124,21 @@ public class AbstractControllerTest extends IntegrationEnvironment {
 
     protected ResultActions deletePoem(int id, String token) throws Exception {
         return performDeleteWithToken("/poem/" + id, token);
+    }
+
+    protected ResultActions getAnnotation(int id) throws Exception {
+        return performGet("/annotation/" + id);
+    }
+
+    protected ResultActions createAnnotation(CreateAnnotationRequest request, String token) throws Exception {
+        return performPostWithToken("/annotation", request, token);
+    }
+
+    protected ResultActions updateAnnotation(int id, PatchAnnotationRequest request, String token) throws Exception {
+        return performPatchWithToken("/annotation/" + id, request, token);
+    }
+
+    protected ResultActions deleteAnnotation(int id, String token) throws Exception {
+        return performDeleteWithToken("/annotation/" + id, token);
     }
 }

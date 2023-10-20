@@ -5,6 +5,6 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class DeletePoemResponse {
+public class DeleteResponse {
     private final String status = "success";
 }

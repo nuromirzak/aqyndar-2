@@ -98,4 +98,15 @@
                                  referencedColumnNames="id"/>
     </changeSet>
 
+    <changeSet id="create-annotation-table" author="Nurmukhammed">
+        <createTable tableName="annotation">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="content" type="text">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>

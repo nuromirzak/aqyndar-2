@@ -9,6 +9,7 @@ import org.nurma.aqyndar.exception.ValidationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -39,6 +40,11 @@ public class ExceptionHandlerController {
 
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
     public ResponseEntity<Object> handleValidationException(final MethodArgumentNotValidException e) {
+        return buildResponse(ExceptionTitle.VALIDATION, e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = {HttpMessageNotReadableException.class})
+    public ResponseEntity<Object> handleHttpMessageNotReadableException(final HttpMessageNotReadableException e) {
         return buildResponse(ExceptionTitle.VALIDATION, e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
