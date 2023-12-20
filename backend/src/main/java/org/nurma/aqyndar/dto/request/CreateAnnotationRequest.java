@@ -11,4 +11,13 @@ import lombok.NoArgsConstructor;
 public class CreateAnnotationRequest {
     @NotEmpty
     private String content;
+
+    @NotEmpty
+    private int startRangeIndex;
+
+    @NotEmpty
+    private int endRangeIndex;
+
+    @NotEmpty
+    private int poemId;
 }

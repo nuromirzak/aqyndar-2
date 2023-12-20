@@ -106,7 +106,22 @@
             <column name="content" type="text">
                 <constraints nullable="false"/>
             </column>
+            <column name="start_range_index" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_range_index" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="poem_id" type="int">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
+
+        <addForeignKeyConstraint baseTableName="annotation"
+                                 baseColumnNames="poem_id"
+                                 constraintName="annotation_poem_id_fk"
+                                 referencedTableName="poem"
+                                 referencedColumnNames="id"/>
     </changeSet>
 
 </databaseChangeLog>

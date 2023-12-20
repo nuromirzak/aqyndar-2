@@ -10,16 +10,12 @@ import org.nurma.aqyndar.entity.Annotation;
 import org.nurma.aqyndar.entity.Author;
 import org.nurma.aqyndar.entity.Poem;
 import org.nurma.aqyndar.exception.ResourceNotFound;
-import org.nurma.aqyndar.exception.ValidationException;
-import org.nurma.aqyndar.repository.AnnotationRepository;
 import org.nurma.aqyndar.repository.AuthorRepository;
 import org.nurma.aqyndar.repository.PoemRepository;
-import org.nurma.aqyndar.util.AnnotationUtil;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -29,7 +25,6 @@ public class PoemService {
     private static final String POEM_NOT_FOUND = "Poem with id %s not found";
     private final PoemRepository poemRepository;
     private final AuthorRepository authorRepository;
-    private final AnnotationRepository annotationRepository;
 
     public GetPoemResponse getPoemById(final int id) {
         Optional<Poem> poemOptional = poemRepository.findById(id);
@@ -45,24 +40,24 @@ public class PoemService {
         getPoemResponse.setContent(poem.getContent());
         getPoemResponse.setAuthorId(poem.getAuthor().getId());
 
-        List<Integer> parsedAnnotations = AnnotationUtil.extractAnnotations(poem.getContent());
-        List<Annotation> annotations = annotationRepository.findAllById(parsedAnnotations);
+        List<GetAnnotationResponse> getAnnotationResponses = new ArrayList<>();
 
-        Map<Integer, GetAnnotationResponse> annotationMap = new HashMap<>();
-        for (Annotation annotation : annotations) {
-            annotationMap.put(annotation.getId(),
-                    new GetAnnotationResponse(annotation.getId(), annotation.getContent()));
+        for (Annotation annotation : poem.getAnnotations()) {
+            GetAnnotationResponse getAnnotationResponse = new GetAnnotationResponse(
+                    annotation.getId(),
+                    annotation.getContent(),
+                    annotation.getStartRangeIndex(),
+                    annotation.getEndRangeIndex(),
+                    poem.getId()
+            );
+            getAnnotationResponses.add(getAnnotationResponse);
         }
-        getPoemResponse.setAnnotations(annotationMap);
+        getPoemResponse.setAnnotations(getAnnotationResponses);
 
         return getPoemResponse;
     }
 
     public GetPoemResponse createPoem(final CreatePoemRequest request) {
-        if (AnnotationUtil.hasOverlappingAnnotations(request.getContent())) {
-            throw new ValidationException("Overlapping annotations are not supported");
-        }
-
         int authorId = request.getAuthorId();
 
         Optional<Author> authorOptional = authorRepository.findById(authorId);
@@ -96,12 +91,6 @@ public class PoemService {
 
         if (request.getTitle() != null) {
             poem.setTitle(request.getTitle());
-        }
-        if (request.getContent() != null) {
-            if (AnnotationUtil.hasOverlappingAnnotations(request.getContent())) {
-                throw new ValidationException("Overlapping annotations are not supported");
-            }
-            poem.setContent(request.getContent());
         }
         if (request.getAuthorId() != null) {
             int authorId = request.getAuthorId();

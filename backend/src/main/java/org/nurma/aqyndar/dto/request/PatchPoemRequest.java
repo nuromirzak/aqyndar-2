@@ -11,6 +11,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PatchPoemRequest {
     private String title;
-    private String content;
     private Integer authorId;
 }

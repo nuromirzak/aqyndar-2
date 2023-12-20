@@ -11,4 +11,13 @@ import lombok.NoArgsConstructor;
 public class PatchAnnotationRequest {
     @NotEmpty
     private String content;
+
+    @NotEmpty
+    private Integer startRangeIndex;
+
+    @NotEmpty
+    private Integer endRangeIndex;
+
+    @NotEmpty
+    private Integer poemId;
 }

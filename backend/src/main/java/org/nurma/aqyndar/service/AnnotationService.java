@@ -6,8 +6,10 @@ import org.nurma.aqyndar.dto.request.PatchAnnotationRequest;
 import org.nurma.aqyndar.dto.response.DeleteResponse;
 import org.nurma.aqyndar.dto.response.GetAnnotationResponse;
 import org.nurma.aqyndar.entity.Annotation;
+import org.nurma.aqyndar.entity.Poem;
 import org.nurma.aqyndar.exception.ResourceNotFound;
 import org.nurma.aqyndar.repository.AnnotationRepository;
+import org.nurma.aqyndar.repository.PoemRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -16,7 +18,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AnnotationService {
     private final AnnotationRepository annotationRepository;
+    private final PoemRepository poemRepository;
     private static final String ANNOTATION_NOT_FOUND = "Annotation with id %s not found";
+    private static final String POEM_NOT_FOUND = "Poem with id %s not found";
 
     public GetAnnotationResponse getAnnotationById(final int id) {
         Optional<Annotation> annotationOptional = annotationRepository.findById(id);
@@ -29,18 +33,38 @@ public class AnnotationService {
         GetAnnotationResponse getAnnotationResponse = new GetAnnotationResponse();
         getAnnotationResponse.setId(annotation.getId());
         getAnnotationResponse.setContent(annotation.getContent());
+        getAnnotationResponse.setStartRangeIndex(annotation.getStartRangeIndex());
+        getAnnotationResponse.setEndRangeIndex(annotation.getEndRangeIndex());
+        Poem poem = annotation.getPoem();
+        getAnnotationResponse.setPoemId(poem.getId());
         return getAnnotationResponse;
     }
 
     public GetAnnotationResponse createAnnotation(final CreateAnnotationRequest request) {
         Annotation annotation = new Annotation();
         annotation.setContent(request.getContent());
+        annotation.setStartRangeIndex(request.getStartRangeIndex());
+        annotation.setEndRangeIndex(request.getEndRangeIndex());
+
+        Optional<Poem> poemOptional = poemRepository.findById(request.getPoemId());
+
+        if (poemOptional.isEmpty()) {
+            throw new ResourceNotFound(POEM_NOT_FOUND.formatted(request.getPoemId()));
+        }
+
+        Poem poem = poemOptional.get();
+        annotation.setPoem(poem);
+
+        poem.getAnnotations().add(annotation);
 
         Annotation savedAnnotation = annotationRepository.save(annotation);
 
         GetAnnotationResponse getAnnotationResponse = new GetAnnotationResponse();
         getAnnotationResponse.setId(savedAnnotation.getId());
         getAnnotationResponse.setContent(savedAnnotation.getContent());
+        getAnnotationResponse.setStartRangeIndex(savedAnnotation.getStartRangeIndex());
+        getAnnotationResponse.setEndRangeIndex(savedAnnotation.getEndRangeIndex());
+        getAnnotationResponse.setPoemId(poem.getId());
         return getAnnotationResponse;
     }
 
@@ -57,10 +81,32 @@ public class AnnotationService {
             annotation.setContent(request.getContent());
         }
 
+        if (request.getStartRangeIndex() != null) {
+            annotation.setStartRangeIndex(request.getStartRangeIndex());
+        }
+
+        if (request.getEndRangeIndex() != null) {
+            annotation.setEndRangeIndex(request.getEndRangeIndex());
+        }
+
+        if (request.getPoemId() != null) {
+            Optional<Poem> poemOptional = poemRepository.findById(request.getPoemId());
+
+            if (poemOptional.isEmpty()) {
+                throw new ResourceNotFound(POEM_NOT_FOUND.formatted(request.getPoemId()));
+            }
+
+            Poem poem = poemOptional.get();
+            annotation.setPoem(poem);
+        }
+
         Annotation savedAnnotation = annotationRepository.save(annotation);
         GetAnnotationResponse getAnnotationResponse = new GetAnnotationResponse();
         getAnnotationResponse.setId(savedAnnotation.getId());
         getAnnotationResponse.setContent(savedAnnotation.getContent());
+        getAnnotationResponse.setStartRangeIndex(savedAnnotation.getStartRangeIndex());
+        getAnnotationResponse.setEndRangeIndex(savedAnnotation.getEndRangeIndex());
+        getAnnotationResponse.setPoemId(savedAnnotation.getPoem().getId());
         return getAnnotationResponse;
     }
 

@@ -10,4 +10,7 @@ import lombok.NoArgsConstructor;
 public class GetAnnotationResponse {
     private int id;
     private String content;
+    private int startRangeIndex;
+    private int endRangeIndex;
+    private int poemId;
 }
