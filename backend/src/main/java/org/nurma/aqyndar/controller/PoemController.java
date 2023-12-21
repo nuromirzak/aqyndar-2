@@ -6,6 +6,7 @@ import org.nurma.aqyndar.dto.request.PatchPoemRequest;
 import org.nurma.aqyndar.dto.response.DeleteResponse;
 import org.nurma.aqyndar.dto.response.GetPoemResponse;
 import org.nurma.aqyndar.service.PoemService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -15,13 +16,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/poem")
 public class PoemController {
     private final PoemService poemService;
 
-    @GetMapping("/{id}")
+    @GetMapping
+    public List<GetPoemResponse> getAllPoems(final Pageable pageable) {
+        return poemService.getAllPoems(pageable);
+    }
+
+                                             @GetMapping("/{id}")
     public GetPoemResponse getPoemById(@PathVariable("id") final int id) {
         return poemService.getPoemById(id);
     }
