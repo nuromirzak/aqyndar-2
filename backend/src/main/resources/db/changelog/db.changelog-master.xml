@@ -123,5 +123,31 @@
                                  referencedTableName="poem"
                                  referencedColumnNames="id"/>
     </changeSet>
+    
+    <changeSet id="create-reaction-table" author="Nurmukhammed">
+        <createTable tableName="reaction">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="reacted_entity" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reacted_entity_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reacted_user_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reaction_type" type="int">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="reaction"
+                                 baseColumnNames="reacted_user_id"
+                                 constraintName="reaction_reacted_user_id_fk"
+                                 referencedTableName="tbl_user"
+                                 referencedColumnNames="id"/>
+    </changeSet>
 
 </databaseChangeLog>

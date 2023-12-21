@@ -2,7 +2,7 @@ package org.nurma.aqyndar.service;
 
 import lombok.RequiredArgsConstructor;
 import org.nurma.aqyndar.entity.Role;
-import org.nurma.aqyndar.entity.RoleName;
+import org.nurma.aqyndar.entity.enums.RoleName;
 import org.nurma.aqyndar.repository.RoleRepository;
 import org.springframework.stereotype.Service;
 

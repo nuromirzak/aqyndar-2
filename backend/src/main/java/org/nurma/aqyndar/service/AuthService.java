@@ -28,6 +28,7 @@ public class AuthService {
     private static final String INVALID_PASSWORD = "Invalid password";
     private static final String USER_NOT_FOUND = "User with email %s not found";
     private static final String USER_ALREADY_EXISTS = "User with email %s already exists";
+    private static final String AUTHENTICATION_TYPE_NOT_SUPPORTED = "Authentication type %s not supported";
     private final UserService userService;
     private final RoleService roleService;
     private final Map<String, String> refreshStorage = new HashMap<>();
@@ -61,12 +62,19 @@ public class AuthService {
         throw new CustomAuthenticationException("Invalid refresh token");
     }
 
-    public JwtAuthentication getAuthInfo() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication instanceof JwtAuthentication) {
-            return (JwtAuthentication) authentication;
-        }
-        return new JwtAuthentication();
+    public Authentication getAuthInfo() {
+        return SecurityContextHolder.getContext().getAuthentication();
+    }
+
+    public User getCurrentUser() {
+        Authentication authentication = getAuthInfo();
+
+        JwtAuthentication jwtAuthentication = (JwtAuthentication) authentication;
+
+        String email = jwtAuthentication.getEmail();
+
+        return userService.getByEmail(email)
+                .orElseThrow(() -> new CustomAuthenticationException(USER_NOT_FOUND.formatted(email)));
     }
 
     public SignupResponse signup(final SignupRequest signupRequest) {

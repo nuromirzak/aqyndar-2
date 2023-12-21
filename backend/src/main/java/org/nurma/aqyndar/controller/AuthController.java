@@ -7,8 +7,8 @@ import org.nurma.aqyndar.dto.request.SigninRequest;
 import org.nurma.aqyndar.dto.request.SignupRequest;
 import org.nurma.aqyndar.dto.response.JwtResponse;
 import org.nurma.aqyndar.dto.response.SignupResponse;
-import org.nurma.aqyndar.security.JwtAuthentication;
 import org.nurma.aqyndar.service.AuthService;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +20,7 @@ public class AuthController {
     private final AuthService authService;
 
     @GetMapping("/who")
-    public JwtAuthentication getCurrentUser() {
+    public Authentication getCurrentUser() {
         return authService.getAuthInfo();
     }
 

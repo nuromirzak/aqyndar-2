@@ -11,6 +11,8 @@ import org.nurma.aqyndar.dto.request.PatchPoemRequest;
 import org.nurma.aqyndar.dto.request.RefreshRequest;
 import org.nurma.aqyndar.dto.request.SigninRequest;
 import org.nurma.aqyndar.dto.request.SignupRequest;
+import org.nurma.aqyndar.dto.request.UpdateReactionRequest;
+import org.nurma.aqyndar.entity.enums.ReactedEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -140,5 +142,13 @@ public class AbstractControllerTest extends IntegrationEnvironment {
 
     protected ResultActions deleteAnnotation(int id, String token) throws Exception {
         return performDeleteWithToken("/annotation/" + id, token);
+    }
+
+    protected ResultActions updateReaction(UpdateReactionRequest updateReactionRequest, String token) throws Exception {
+        return performPostWithToken("/reaction", updateReactionRequest, token);
+    }
+
+    protected ResultActions getReaction(String reactedEntity, int reactedEntityId, String token) throws Exception {
+        return performGetWithToken("/reaction?reactedEntity=" + reactedEntity + "&reactedEntityId=" + reactedEntityId, token);
     }
 }
