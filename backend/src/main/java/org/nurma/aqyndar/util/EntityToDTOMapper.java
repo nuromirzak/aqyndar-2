@@ -4,9 +4,11 @@ import lombok.experimental.UtilityClass;
 import org.nurma.aqyndar.dto.response.GetAnnotationResponse;
 import org.nurma.aqyndar.dto.response.GetAuthorResponse;
 import org.nurma.aqyndar.dto.response.GetPoemResponse;
+import org.nurma.aqyndar.dto.response.GetWhoResponse;
 import org.nurma.aqyndar.entity.Annotation;
 import org.nurma.aqyndar.entity.Author;
 import org.nurma.aqyndar.entity.Poem;
+import org.nurma.aqyndar.entity.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,7 @@ public class EntityToDTOMapper {
         getAnnotationResponse.setStartRangeIndex(annotation.getStartRangeIndex());
         getAnnotationResponse.setEndRangeIndex(annotation.getEndRangeIndex());
         getAnnotationResponse.setPoemId(annotation.getPoem().getId());
+        getAnnotationResponse.setUserId(annotation.getUser().getId());
         return getAnnotationResponse;
     }
 
@@ -50,5 +53,19 @@ public class EntityToDTOMapper {
         getPoemResponse.setUserId(poem.getUser().getId());
 
         return getPoemResponse;
+    }
+
+    public static GetWhoResponse mapUserToGetWhoResponse(final User user) {
+        GetWhoResponse getWhoResponse = new GetWhoResponse();
+        getWhoResponse.setId(user.getId());
+        getWhoResponse.setEmail(user.getEmail());
+        getWhoResponse.setFirstName(user.getFirstName());
+
+        List<String> roles = user.getRoles().stream()
+                .map(role -> role.getName().name())
+                .toList();
+        getWhoResponse.setRoles(roles);
+
+        return getWhoResponse;
     }
 }

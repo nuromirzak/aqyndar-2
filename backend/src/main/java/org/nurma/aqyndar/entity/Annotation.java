@@ -36,4 +36,8 @@ public class Annotation {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "poem_id", nullable = false)
     private Poem poem;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }

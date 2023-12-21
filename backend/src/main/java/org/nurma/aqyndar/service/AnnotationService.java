@@ -7,9 +7,11 @@ import org.nurma.aqyndar.dto.response.DeleteResponse;
 import org.nurma.aqyndar.dto.response.GetAnnotationResponse;
 import org.nurma.aqyndar.entity.Annotation;
 import org.nurma.aqyndar.entity.Poem;
+import org.nurma.aqyndar.entity.User;
 import org.nurma.aqyndar.exception.ResourceNotFound;
 import org.nurma.aqyndar.repository.AnnotationRepository;
 import org.nurma.aqyndar.repository.PoemRepository;
+import org.nurma.aqyndar.util.EntityToDTOMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -21,6 +23,7 @@ public class AnnotationService {
     private final PoemRepository poemRepository;
     private static final String ANNOTATION_NOT_FOUND = "Annotation with id %s not found";
     private static final String POEM_NOT_FOUND = "Poem with id %s not found";
+    private final AuthService authService;
 
     public GetAnnotationResponse getAnnotationById(final int id) {
         Optional<Annotation> annotationOptional = annotationRepository.findById(id);
@@ -29,15 +32,7 @@ public class AnnotationService {
             throw new ResourceNotFound(ANNOTATION_NOT_FOUND.formatted(id));
         }
 
-        Annotation annotation = annotationOptional.get();
-        GetAnnotationResponse getAnnotationResponse = new GetAnnotationResponse();
-        getAnnotationResponse.setId(annotation.getId());
-        getAnnotationResponse.setContent(annotation.getContent());
-        getAnnotationResponse.setStartRangeIndex(annotation.getStartRangeIndex());
-        getAnnotationResponse.setEndRangeIndex(annotation.getEndRangeIndex());
-        Poem poem = annotation.getPoem();
-        getAnnotationResponse.setPoemId(poem.getId());
-        return getAnnotationResponse;
+        return EntityToDTOMapper.mapAnnotationToGetAnnotationResponse(annotationOptional.get());
     }
 
     public GetAnnotationResponse createAnnotation(final CreateAnnotationRequest request) {
@@ -55,17 +50,14 @@ public class AnnotationService {
         Poem poem = poemOptional.get();
         annotation.setPoem(poem);
 
+        User user = authService.getCurrentUserEntity();
+        annotation.setUser(user);
+
         poem.getAnnotations().add(annotation);
 
         Annotation savedAnnotation = annotationRepository.save(annotation);
 
-        GetAnnotationResponse getAnnotationResponse = new GetAnnotationResponse();
-        getAnnotationResponse.setId(savedAnnotation.getId());
-        getAnnotationResponse.setContent(savedAnnotation.getContent());
-        getAnnotationResponse.setStartRangeIndex(savedAnnotation.getStartRangeIndex());
-        getAnnotationResponse.setEndRangeIndex(savedAnnotation.getEndRangeIndex());
-        getAnnotationResponse.setPoemId(poem.getId());
-        return getAnnotationResponse;
+        return EntityToDTOMapper.mapAnnotationToGetAnnotationResponse(savedAnnotation);
     }
 
     public GetAnnotationResponse updateAnnotation(final int id, final PatchAnnotationRequest request) {
@@ -100,14 +92,7 @@ public class AnnotationService {
             annotation.setPoem(poem);
         }
 
-        Annotation savedAnnotation = annotationRepository.save(annotation);
-        GetAnnotationResponse getAnnotationResponse = new GetAnnotationResponse();
-        getAnnotationResponse.setId(savedAnnotation.getId());
-        getAnnotationResponse.setContent(savedAnnotation.getContent());
-        getAnnotationResponse.setStartRangeIndex(savedAnnotation.getStartRangeIndex());
-        getAnnotationResponse.setEndRangeIndex(savedAnnotation.getEndRangeIndex());
-        getAnnotationResponse.setPoemId(savedAnnotation.getPoem().getId());
-        return getAnnotationResponse;
+        return EntityToDTOMapper.mapAnnotationToGetAnnotationResponse(annotationRepository.save(annotation));
     }
 
     public DeleteResponse deleteAnnotation(final int id) {
