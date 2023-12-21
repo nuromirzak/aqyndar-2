@@ -114,7 +114,8 @@ class AuthorControllerTest extends AbstractControllerTest {
         getAuthor(authorId)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(authorId))
-                .andExpect(jsonPath("$.fullName").value(AUTHOR_FULL_NAME));
+                .andExpect(jsonPath("$.fullName").value(AUTHOR_FULL_NAME))
+                .andExpect(jsonPath("$.userId").isNotEmpty());
     }
 
     @Test
@@ -131,7 +132,8 @@ class AuthorControllerTest extends AbstractControllerTest {
         createAuthor(new CreateAuthorRequest(AUTHOR_FULL_NAME), token)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNotEmpty())
-                .andExpect(jsonPath("$.fullName").value(AUTHOR_FULL_NAME));
+                .andExpect(jsonPath("$.fullName").value(AUTHOR_FULL_NAME))
+                .andExpect(jsonPath("$.userId").isNotEmpty());
     }
 
     @Test

@@ -72,7 +72,16 @@
             <column name="full_name" type="varchar(255)">
                 <constraints unique="true"/>
             </column>
+            <column name="user_id" type="int">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
+
+        <addForeignKeyConstraint baseTableName="author"
+                                 baseColumnNames="user_id"
+                                 constraintName="author_user_id_fk"
+                                 referencedTableName="tbl_user"
+                                 referencedColumnNames="id"/>
     </changeSet>
 
     <changeSet id="create-poem-table" author="Nurmukhammed">
