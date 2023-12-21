@@ -4,14 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.nurma.aqyndar.dto.request.CreatePoemRequest;
 import org.nurma.aqyndar.dto.request.PatchPoemRequest;
 import org.nurma.aqyndar.dto.response.DeleteResponse;
-import org.nurma.aqyndar.dto.response.GetAnnotationResponse;
 import org.nurma.aqyndar.dto.response.GetPoemResponse;
-import org.nurma.aqyndar.entity.Annotation;
 import org.nurma.aqyndar.entity.Author;
 import org.nurma.aqyndar.entity.Poem;
+import org.nurma.aqyndar.entity.User;
 import org.nurma.aqyndar.exception.ResourceNotFound;
 import org.nurma.aqyndar.repository.AuthorRepository;
 import org.nurma.aqyndar.repository.PoemRepository;
+import org.nurma.aqyndar.util.EntityToDTOMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,6 +27,7 @@ public class PoemService {
     private static final String POEM_NOT_FOUND = "Poem with id %s not found";
     private final PoemRepository poemRepository;
     private final AuthorRepository authorRepository;
+    private final AuthService authService;
 
     public GetPoemResponse getPoemById(final int id) {
         Optional<Poem> poemOptional = poemRepository.findById(id);
@@ -36,27 +37,8 @@ public class PoemService {
         }
 
         Poem poem = poemOptional.get();
-        GetPoemResponse getPoemResponse = new GetPoemResponse();
-        getPoemResponse.setId(poem.getId());
-        getPoemResponse.setTitle(poem.getTitle());
-        getPoemResponse.setContent(poem.getContent());
-        getPoemResponse.setAuthorId(poem.getAuthor().getId());
 
-        List<GetAnnotationResponse> getAnnotationResponses = new ArrayList<>();
-
-        for (Annotation annotation : poem.getAnnotations()) {
-            GetAnnotationResponse getAnnotationResponse = new GetAnnotationResponse(
-                    annotation.getId(),
-                    annotation.getContent(),
-                    annotation.getStartRangeIndex(),
-                    annotation.getEndRangeIndex(),
-                    poem.getId()
-            );
-            getAnnotationResponses.add(getAnnotationResponse);
-        }
-        getPoemResponse.setAnnotations(getAnnotationResponses);
-
-        return getPoemResponse;
+        return EntityToDTOMapper.mapPoemToGetPoemResponse(poem);
     }
 
     public GetPoemResponse createPoem(final CreatePoemRequest request) {
@@ -72,14 +54,13 @@ public class PoemService {
         poem.setTitle(request.getTitle());
         poem.setContent(request.getContent());
         poem.setAuthor(authorOptional.get());
+
+        User user = authService.getCurrentUser();
+        poem.setUser(user);
+
         Poem savedPoem = poemRepository.save(poem);
 
-        GetPoemResponse getPoemResponse = new GetPoemResponse();
-        getPoemResponse.setId(savedPoem.getId());
-        getPoemResponse.setTitle(savedPoem.getTitle());
-        getPoemResponse.setContent(savedPoem.getContent());
-        getPoemResponse.setAuthorId(savedPoem.getAuthor().getId());
-        return getPoemResponse;
+        return EntityToDTOMapper.mapPoemToGetPoemResponse(savedPoem);
     }
 
     public GetPoemResponse updatePoem(final int id, final PatchPoemRequest request) {
@@ -107,12 +88,7 @@ public class PoemService {
         }
         Poem savedPoem = poemRepository.save(poem);
 
-        GetPoemResponse getPoemResponse = new GetPoemResponse();
-        getPoemResponse.setId(savedPoem.getId());
-        getPoemResponse.setTitle(savedPoem.getTitle());
-        getPoemResponse.setContent(savedPoem.getContent());
-        getPoemResponse.setAuthorId(savedPoem.getAuthor().getId());
-        return getPoemResponse;
+        return EntityToDTOMapper.mapPoemToGetPoemResponse(savedPoem);
     }
 
     public DeleteResponse deletePoem(final int id) {
@@ -133,11 +109,7 @@ public class PoemService {
         List<GetPoemResponse> getPoemResponses = new ArrayList<>();
 
         for (Poem poem : poems) {
-            GetPoemResponse getPoemResponse = new GetPoemResponse();
-            getPoemResponse.setId(poem.getId());
-            getPoemResponse.setTitle(poem.getTitle());
-            getPoemResponse.setContent(poem.getContent());
-            getPoemResponse.setAuthorId(poem.getAuthor().getId());
+            GetPoemResponse getPoemResponse = EntityToDTOMapper.mapPoemToGetPoemResponse(poem);
             getPoemResponses.add(getPoemResponse);
         }
 
