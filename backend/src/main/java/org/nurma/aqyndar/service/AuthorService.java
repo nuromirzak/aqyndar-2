@@ -7,6 +7,7 @@ import org.nurma.aqyndar.dto.response.DeleteResponse;
 import org.nurma.aqyndar.dto.response.GetAuthorResponse;
 import org.nurma.aqyndar.entity.Author;
 import org.nurma.aqyndar.entity.Poem;
+import org.nurma.aqyndar.entity.User;
 import org.nurma.aqyndar.exception.ResourceNotFound;
 import org.nurma.aqyndar.exception.ValidationException;
 import org.nurma.aqyndar.repository.AuthorRepository;
@@ -26,6 +27,7 @@ public class AuthorService {
     private static final String AUTHOR_HAVE_POEM = "Author with id %s have poem";
     private final AuthorRepository authorRepository;
     private final PoemRepository poemRepository;
+    private final AuthService authService;
 
     public GetAuthorResponse getAuthorById(final int id) {
         Optional<Author> authorOptional = authorRepository.findById(id);
@@ -35,22 +37,20 @@ public class AuthorService {
         }
 
         Author author = authorOptional.get();
-        GetAuthorResponse getAuthorResponse = new GetAuthorResponse();
-        getAuthorResponse.setId(author.getId());
-        getAuthorResponse.setFullName(author.getFullName());
-        return getAuthorResponse;
+
+        return mapAuthorToGetAuthorResponse(author);
     }
 
     public GetAuthorResponse createAuthor(final CreateAuthorRequest request) {
         Author author = new Author();
         author.setFullName(request.getFullName());
 
+        User user = authService.getCurrentUser();
+        author.setUser(user);
+
         Author savedAuthor = authorRepository.save(author);
 
-        GetAuthorResponse getAuthorResponse = new GetAuthorResponse();
-        getAuthorResponse.setId(savedAuthor.getId());
-        getAuthorResponse.setFullName(savedAuthor.getFullName());
-        return getAuthorResponse;
+        return mapAuthorToGetAuthorResponse(savedAuthor);
     }
 
 
@@ -69,10 +69,7 @@ public class AuthorService {
 
         Author savedAuthor = authorRepository.save(author);
 
-        GetAuthorResponse getAuthorResponse = new GetAuthorResponse();
-        getAuthorResponse.setId(savedAuthor.getId());
-        getAuthorResponse.setFullName(savedAuthor.getFullName());
-        return getAuthorResponse;
+        return mapAuthorToGetAuthorResponse(savedAuthor);
     }
 
     public DeleteResponse deleteAuthor(final int id) {
@@ -99,12 +96,18 @@ public class AuthorService {
         List<GetAuthorResponse> getAuthorResponses = new ArrayList<>();
 
         for (Author author : authors) {
-            GetAuthorResponse getAuthorResponse = new GetAuthorResponse();
-            getAuthorResponse.setId(author.getId());
-            getAuthorResponse.setFullName(author.getFullName());
+            GetAuthorResponse getAuthorResponse = mapAuthorToGetAuthorResponse(author);
             getAuthorResponses.add(getAuthorResponse);
         }
 
         return getAuthorResponses;
+    }
+
+    private GetAuthorResponse mapAuthorToGetAuthorResponse(final Author author) {
+        GetAuthorResponse getAuthorResponse = new GetAuthorResponse();
+        getAuthorResponse.setId(author.getId());
+        getAuthorResponse.setFullName(author.getFullName());
+        getAuthorResponse.setUserId(author.getUser().getId());
+        return getAuthorResponse;
     }
 }

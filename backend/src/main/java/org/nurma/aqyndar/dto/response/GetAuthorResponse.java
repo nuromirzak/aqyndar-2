@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class GetAuthorResponse {
     private int id;
     private String fullName;
+    private int userId;
 }
