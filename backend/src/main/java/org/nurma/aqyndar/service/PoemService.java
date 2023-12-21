@@ -55,7 +55,7 @@ public class PoemService {
         poem.setContent(request.getContent());
         poem.setAuthor(authorOptional.get());
 
-        User user = authService.getCurrentUser();
+        User user = authService.getCurrentUserEntity();
         poem.setUser(user);
 
         Poem savedPoem = poemRepository.save(poem);

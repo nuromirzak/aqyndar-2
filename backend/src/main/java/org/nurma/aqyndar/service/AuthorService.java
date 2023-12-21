@@ -46,7 +46,7 @@ public class AuthorService {
         Author author = new Author();
         author.setFullName(request.getFullName());
 
-        User user = authService.getCurrentUser();
+        User user = authService.getCurrentUserEntity();
         author.setUser(user);
 
         Author savedAuthor = authorRepository.save(author);

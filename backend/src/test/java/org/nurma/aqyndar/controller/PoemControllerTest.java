@@ -13,6 +13,7 @@ import org.nurma.aqyndar.dto.request.SignupRequest;
 import org.nurma.aqyndar.dto.response.GetAnnotationResponse;
 import org.nurma.aqyndar.dto.response.GetAuthorResponse;
 import org.nurma.aqyndar.dto.response.GetPoemResponse;
+import org.nurma.aqyndar.dto.response.GetWhoResponse;
 import org.nurma.aqyndar.dto.response.JwtResponse;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.ResultActions;
@@ -43,6 +44,7 @@ class PoemControllerTest extends AbstractControllerTest {
     private static final String VERY_LONG_STRING = "a".repeat(1000);
     private String token;
     private int authorId;
+    private int userId;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -52,6 +54,11 @@ class PoemControllerTest extends AbstractControllerTest {
                 signin(new SigninRequest(EMAIL, PASSWORD)),
                 JwtResponse.class)
                 .getAccessToken();
+
+        userId = fromJson(
+                who(token),
+                GetWhoResponse.class)
+                .getId();
 
         authorId = fromJson(
                 createAuthor(new CreateAuthorRequest(AUTHOR_FULL_NAME), token),
@@ -169,13 +176,13 @@ class PoemControllerTest extends AbstractControllerTest {
         List<GetAnnotationResponse> expectedAnnotations = new ArrayList<>();
         expectedAnnotations.add(
                 new GetAnnotationResponse(annotation1Id, annotation1.getContent(), annotation1.getStartRangeIndex(),
-                        annotation1.getEndRangeIndex(), poemId));
+                        annotation1.getEndRangeIndex(), poemId, userId));
         expectedAnnotations.add(
                 new GetAnnotationResponse(annotation2Id, annotation2.getContent(), annotation2.getStartRangeIndex(),
-                        annotation2.getEndRangeIndex(), poemId));
+                        annotation2.getEndRangeIndex(), poemId, userId));
         expectedAnnotations.add(
                 new GetAnnotationResponse(annotation3Id, annotation3.getContent(), annotation3.getStartRangeIndex(),
-                        annotation3.getEndRangeIndex(), poemId));
+                        annotation3.getEndRangeIndex(), poemId, userId));
 
         assertEquals(expectedAnnotations, getPoemResponse.getAnnotations());
     }

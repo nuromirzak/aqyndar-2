@@ -75,7 +75,8 @@ class AnnotationControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.content").value(ANNOTATION))
                 .andExpect(jsonPath("$.startRangeIndex").value(START_RANGE_INDEX))
                 .andExpect(jsonPath("$.endRangeIndex").value(END_RANGE_INDEX))
-                .andExpect(jsonPath("$.poemId").value(poemId));
+                .andExpect(jsonPath("$.poemId").value(poemId))
+                .andExpect(jsonPath("$.userId").isNotEmpty());
     }
 
     @Test
@@ -95,7 +96,8 @@ class AnnotationControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.content").value(ANNOTATION))
                 .andExpect(jsonPath("$.startRangeIndex").value(START_RANGE_INDEX))
                 .andExpect(jsonPath("$.endRangeIndex").value(END_RANGE_INDEX))
-                .andExpect(jsonPath("$.poemId").value(poemId));
+                .andExpect(jsonPath("$.poemId").value(poemId))
+                .andExpect(jsonPath("$.userId").isNotEmpty());
     }
 
     @Test
@@ -106,7 +108,8 @@ class AnnotationControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.content").value(VERY_LONG_STRING))
                 .andExpect(jsonPath("$.startRangeIndex").value(START_RANGE_INDEX))
                 .andExpect(jsonPath("$.endRangeIndex").value(END_RANGE_INDEX))
-                .andExpect(jsonPath("$.poemId").value(poemId));
+                .andExpect(jsonPath("$.poemId").value(poemId))
+                .andExpect(jsonPath("$.userId").isNotEmpty());
     }
 
     @Test
@@ -118,7 +121,8 @@ class AnnotationControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.content").value(ANNOTATION))
                 .andExpect(jsonPath("$.startRangeIndex").value(START_RANGE_INDEX))
                 .andExpect(jsonPath("$.endRangeIndex").value(END_RANGE_INDEX))
-                .andExpect(jsonPath("$.poemId").value(poemId));
+                .andExpect(jsonPath("$.poemId").value(poemId))
+                .andExpect(jsonPath("$.userId").isNotEmpty());
     }
 
     @Test

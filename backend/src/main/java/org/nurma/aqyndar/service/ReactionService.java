@@ -60,7 +60,7 @@ public class ReactionService {
             }
         }
 
-        User user = authService.getCurrentUser();
+        User user = authService.getCurrentUserEntity();
 
         Reaction reaction = reactionRepository.findByReactedEntityAndReactedEntityIdAndUserId(
                 reactedEntity,

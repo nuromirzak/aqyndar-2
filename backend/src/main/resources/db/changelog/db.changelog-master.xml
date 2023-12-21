@@ -133,12 +133,21 @@
             <column name="poem_id" type="int">
                 <constraints nullable="false"/>
             </column>
+            <column name="user_id" type="int">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
 
         <addForeignKeyConstraint baseTableName="annotation"
                                  baseColumnNames="poem_id"
                                  constraintName="annotation_poem_id_fk"
                                  referencedTableName="poem"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="annotation"
+                                 baseColumnNames="user_id"
+                                 constraintName="annotation_user_id_fk"
+                                 referencedTableName="tbl_user"
                                  referencedColumnNames="id"/>
     </changeSet>
 
