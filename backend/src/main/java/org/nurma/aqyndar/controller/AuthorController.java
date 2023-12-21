@@ -6,6 +6,7 @@ import org.nurma.aqyndar.dto.request.PatchAuthorRequest;
 import org.nurma.aqyndar.dto.response.DeleteResponse;
 import org.nurma.aqyndar.dto.response.GetAuthorResponse;
 import org.nurma.aqyndar.service.AuthorService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -15,11 +16,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/author")
 public class AuthorController {
     private final AuthorService authorService;
+
+    @GetMapping
+    public List<GetAuthorResponse> getAllAuthors(final Pageable pageable) {
+        return authorService.getAllAuthors(pageable);
+    }
 
     @GetMapping("/{id}")
     public GetAuthorResponse getAuthorById(@PathVariable("id") final int id) {

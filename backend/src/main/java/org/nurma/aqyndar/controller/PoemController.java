@@ -29,7 +29,7 @@ public class PoemController {
         return poemService.getAllPoems(pageable);
     }
 
-                                             @GetMapping("/{id}")
+    @GetMapping("/{id}")
     public GetPoemResponse getPoemById(@PathVariable("id") final int id) {
         return poemService.getPoemById(id);
     }

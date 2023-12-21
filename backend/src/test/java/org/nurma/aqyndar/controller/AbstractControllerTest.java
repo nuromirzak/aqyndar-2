@@ -96,6 +96,35 @@ public class AbstractControllerTest extends IntegrationEnvironment {
         return performPost("/refresh", refreshRequest);
     }
 
+    protected ResultActions getAuthors(Integer page, Integer size, String sort) throws Exception {
+        StringBuilder urlBuilder = new StringBuilder("/author");
+
+        if (page != null || size != null || sort != null) {
+            urlBuilder.append("?");
+        }
+
+        boolean isFirstParam = true;
+        if (page != null) {
+            urlBuilder.append("page=").append(page);
+            isFirstParam = false;
+        }
+        if (size != null) {
+            if (!isFirstParam) {
+                urlBuilder.append("&");
+            }
+            urlBuilder.append("size=").append(size);
+            isFirstParam = false;
+        }
+        if (sort != null) {
+            if (!isFirstParam) {
+                urlBuilder.append("&");
+            }
+            urlBuilder.append("sort=").append(sort);
+        }
+
+        return performGet(urlBuilder.toString());
+    }
+
     protected ResultActions getAuthor(int id) throws Exception {
         return performGet("/author/" + id);
     }

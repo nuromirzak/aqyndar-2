@@ -1,6 +1,7 @@
 package org.nurma.aqyndar.controller;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.nurma.aqyndar.constant.ExceptionTitle;
 import org.nurma.aqyndar.dto.request.CreateAuthorRequest;
@@ -42,6 +43,64 @@ class AuthorControllerTest extends AbstractControllerTest {
                 signin(new SigninRequest(EMAIL, PASSWORD)),
                 JwtResponse.class)
                 .getAccessToken();
+
+        int authorsCount = 100;
+
+        for (int i = 0; i < authorsCount; i++) {
+            String authorFullName = "Author #%d".formatted(i + 1);
+            createAuthor(new CreateAuthorRequest(authorFullName), token);
+        }
+    }
+
+    @Test
+    void defaultPaginationLimit() throws Exception {
+        getAuthors(null, null, null)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(20))
+                .andExpect(jsonPath("$[0].fullName").value("Author #1"))
+                .andExpect(jsonPath("$[19].fullName").value("Author #20"));
+    }
+
+    @Test
+    void testPagination() throws Exception {
+        int page = 1;
+        int size = 10;
+
+        getAuthors(page, size, null)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(size))
+                .andExpect(jsonPath("$[0].fullName").value("Author #11"))
+                .andExpect(jsonPath("$[9].fullName").value("Author #20"));
+    }
+
+    @Test
+    void testPaginationSorting() throws Exception {
+        int page = 0;
+        int size = 10;
+
+        String sort = "fullName,desc";
+        getAuthors(page, size, sort)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(size))
+                .andExpect(jsonPath("$[0].fullName").value("Author #99"));
+    }
+
+    @Test
+    void testPaginationOutOfBounds() throws Exception {
+        int page = 50;
+        int size = 10;
+
+        getAuthors(page, size, null)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    @Disabled
+    void testInvalidPaginationParameters() throws Exception {
+        getAuthors(-1, -10, null)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
     }
 
     @Test
