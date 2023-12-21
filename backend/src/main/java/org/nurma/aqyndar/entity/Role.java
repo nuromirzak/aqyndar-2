@@ -11,6 +11,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.nurma.aqyndar.entity.enums.RoleName;
 import org.springframework.security.core.GrantedAuthority;
 
 @Entity

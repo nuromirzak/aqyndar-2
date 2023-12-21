@@ -1,4 +1,4 @@
-package org.nurma.aqyndar.entity;
+package org.nurma.aqyndar.entity.enums;
 
 public enum RoleName {
     USER,

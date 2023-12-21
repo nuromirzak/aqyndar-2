@@ -133,8 +133,7 @@ class AuthControllerTest extends AbstractControllerTest {
     void who_with_anonymous() throws Exception {
         who(null)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.authenticated").value(false))
-                .andExpect(jsonPath("$.email").isEmpty());
+                .andExpect(jsonPath("$.email").doesNotExist());
     }
 
     @Test

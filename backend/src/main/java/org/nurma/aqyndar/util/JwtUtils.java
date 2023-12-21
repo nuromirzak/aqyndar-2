@@ -2,7 +2,7 @@ package org.nurma.aqyndar.util;
 
 import io.jsonwebtoken.Claims;
 import org.nurma.aqyndar.entity.Role;
-import org.nurma.aqyndar.entity.RoleName;
+import org.nurma.aqyndar.entity.enums.RoleName;
 import org.nurma.aqyndar.security.JwtAuthentication;
 
 import java.util.Arrays;
