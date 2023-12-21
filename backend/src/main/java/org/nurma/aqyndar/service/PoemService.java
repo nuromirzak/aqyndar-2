@@ -12,6 +12,8 @@ import org.nurma.aqyndar.entity.Poem;
 import org.nurma.aqyndar.exception.ResourceNotFound;
 import org.nurma.aqyndar.repository.AuthorRepository;
 import org.nurma.aqyndar.repository.PoemRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -123,5 +125,22 @@ public class PoemService {
         poemRepository.deleteById(id);
 
         return new DeleteResponse();
+    }
+
+    public List<GetPoemResponse> getAllPoems(final Pageable pageable) {
+        Page<Poem> poems = poemRepository.findAll(pageable);
+
+        List<GetPoemResponse> getPoemResponses = new ArrayList<>();
+
+        for (Poem poem : poems) {
+            GetPoemResponse getPoemResponse = new GetPoemResponse();
+            getPoemResponse.setId(poem.getId());
+            getPoemResponse.setTitle(poem.getTitle());
+            getPoemResponse.setContent(poem.getContent());
+            getPoemResponse.setAuthorId(poem.getAuthor().getId());
+            getPoemResponses.add(getPoemResponse);
+        }
+
+        return getPoemResponses;
     }
 }

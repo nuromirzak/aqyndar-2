@@ -4,7 +4,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.nurma.aqyndar.constant.ExceptionTitle;
-import org.nurma.aqyndar.dto.request.*;
+import org.nurma.aqyndar.dto.request.CreateAnnotationRequest;
+import org.nurma.aqyndar.dto.request.CreateAuthorRequest;
+import org.nurma.aqyndar.dto.request.CreatePoemRequest;
+import org.nurma.aqyndar.dto.request.PatchPoemRequest;
+import org.nurma.aqyndar.dto.request.SigninRequest;
+import org.nurma.aqyndar.dto.request.SignupRequest;
 import org.nurma.aqyndar.dto.response.GetAnnotationResponse;
 import org.nurma.aqyndar.dto.response.GetAuthorResponse;
 import org.nurma.aqyndar.dto.response.GetPoemResponse;
@@ -14,13 +19,10 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -55,6 +57,65 @@ class PoemControllerTest extends AbstractControllerTest {
                 createAuthor(new CreateAuthorRequest(AUTHOR_FULL_NAME), token),
                 GetAuthorResponse.class)
                 .getId();
+
+        int poemsCount = 100;
+
+        for (int i = 0; i < poemsCount; i++) {
+            String poemTitle = "Poem #%d".formatted(i + 1);
+            String poemContent = "Content #%d".formatted(i + 1);
+            createPoem(new CreatePoemRequest(poemTitle, poemContent, authorId), token);
+        }
+    }
+
+    @Test
+    void defaultPaginationLimit() throws Exception {
+        getPoems(null, null, null)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(20))
+                .andExpect(jsonPath("$[0].title").value("Poem #1"))
+                .andExpect(jsonPath("$[19].title").value("Poem #20"));
+    }
+
+    @Test
+    void testPagination() throws Exception {
+        int page = 1;
+        int size = 10;
+
+        getPoems(page, size, null)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(size))
+                .andExpect(jsonPath("$[0].title").value("Poem #11"))
+                .andExpect(jsonPath("$[9].title").value("Poem #20"));
+    }
+
+    @Test
+    void testPaginationSorting() throws Exception {
+        int page = 0;
+        int size = 10;
+
+        String sort = "title,desc";
+        getPoems(page, size, sort)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(size))
+                .andExpect(jsonPath("$[0].title").value("Poem #99"));
+    }
+
+    @Test
+    void testPaginationOutOfBounds() throws Exception {
+        int page = 50;
+        int size = 10;
+
+        getPoems(page, size, null)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    @Disabled
+    void testInvalidPaginationParameters() throws Exception {
+        getPoems(-1, -10, null)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
     }
 
     @Test
@@ -105,9 +166,15 @@ class PoemControllerTest extends AbstractControllerTest {
         assertEquals(authorId, getPoemResponse.getAuthorId());
 
         List<GetAnnotationResponse> expectedAnnotations = new ArrayList<>();
-        expectedAnnotations.add(new GetAnnotationResponse(annotation1Id, annotation1.getContent(), annotation1.getStartRangeIndex(), annotation1.getEndRangeIndex(), poemId));
-        expectedAnnotations.add(new GetAnnotationResponse(annotation2Id, annotation2.getContent(), annotation2.getStartRangeIndex(), annotation2.getEndRangeIndex(), poemId));
-        expectedAnnotations.add(new GetAnnotationResponse(annotation3Id, annotation3.getContent(), annotation3.getStartRangeIndex(), annotation3.getEndRangeIndex(), poemId));
+        expectedAnnotations.add(
+                new GetAnnotationResponse(annotation1Id, annotation1.getContent(), annotation1.getStartRangeIndex(),
+                        annotation1.getEndRangeIndex(), poemId));
+        expectedAnnotations.add(
+                new GetAnnotationResponse(annotation2Id, annotation2.getContent(), annotation2.getStartRangeIndex(),
+                        annotation2.getEndRangeIndex(), poemId));
+        expectedAnnotations.add(
+                new GetAnnotationResponse(annotation3Id, annotation3.getContent(), annotation3.getStartRangeIndex(),
+                        annotation3.getEndRangeIndex(), poemId));
 
         assertEquals(expectedAnnotations, getPoemResponse.getAnnotations());
     }
