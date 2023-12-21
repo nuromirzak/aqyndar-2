@@ -41,4 +41,8 @@ public class Poem {
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "poem", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Annotation> annotations = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }

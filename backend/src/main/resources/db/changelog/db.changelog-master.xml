@@ -98,12 +98,21 @@
             <column name="author_id" type="int">
                 <constraints nullable="false"/>
             </column>
+            <column name="user_id" type="int">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
 
         <addForeignKeyConstraint baseTableName="poem"
                                  baseColumnNames="author_id"
                                  constraintName="poem_author_id_fk"
                                  referencedTableName="author"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="poem"
+                                 baseColumnNames="user_id"
+                                 constraintName="poem_user_id_fk"
+                                 referencedTableName="tbl_user"
                                  referencedColumnNames="id"/>
     </changeSet>
 
@@ -132,7 +141,7 @@
                                  referencedTableName="poem"
                                  referencedColumnNames="id"/>
     </changeSet>
-    
+
     <changeSet id="create-reaction-table" author="Nurmukhammed">
         <createTable tableName="reaction">
             <column name="id" type="int" autoIncrement="true">

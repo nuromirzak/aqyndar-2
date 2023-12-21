@@ -12,6 +12,7 @@ import org.nurma.aqyndar.exception.ResourceNotFound;
 import org.nurma.aqyndar.exception.ValidationException;
 import org.nurma.aqyndar.repository.AuthorRepository;
 import org.nurma.aqyndar.repository.PoemRepository;
+import org.nurma.aqyndar.util.EntityToDTOMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,7 @@ public class AuthorService {
 
         Author author = authorOptional.get();
 
-        return mapAuthorToGetAuthorResponse(author);
+        return EntityToDTOMapper.mapAuthorToGetAuthorResponse(author);
     }
 
     public GetAuthorResponse createAuthor(final CreateAuthorRequest request) {
@@ -50,7 +51,7 @@ public class AuthorService {
 
         Author savedAuthor = authorRepository.save(author);
 
-        return mapAuthorToGetAuthorResponse(savedAuthor);
+        return EntityToDTOMapper.mapAuthorToGetAuthorResponse(savedAuthor);
     }
 
 
@@ -69,7 +70,7 @@ public class AuthorService {
 
         Author savedAuthor = authorRepository.save(author);
 
-        return mapAuthorToGetAuthorResponse(savedAuthor);
+        return EntityToDTOMapper.mapAuthorToGetAuthorResponse(savedAuthor);
     }
 
     public DeleteResponse deleteAuthor(final int id) {
@@ -96,18 +97,10 @@ public class AuthorService {
         List<GetAuthorResponse> getAuthorResponses = new ArrayList<>();
 
         for (Author author : authors) {
-            GetAuthorResponse getAuthorResponse = mapAuthorToGetAuthorResponse(author);
+            GetAuthorResponse getAuthorResponse = EntityToDTOMapper.mapAuthorToGetAuthorResponse(author);
             getAuthorResponses.add(getAuthorResponse);
         }
 
         return getAuthorResponses;
-    }
-
-    private GetAuthorResponse mapAuthorToGetAuthorResponse(final Author author) {
-        GetAuthorResponse getAuthorResponse = new GetAuthorResponse();
-        getAuthorResponse.setId(author.getId());
-        getAuthorResponse.setFullName(author.getFullName());
-        getAuthorResponse.setUserId(author.getUser().getId());
-        return getAuthorResponse;
     }
 }
