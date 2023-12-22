@@ -9,8 +9,8 @@
     - [x] Track who added each poem and annotation.
 - Gamification
     - [x] Allow users to like poems and annotations.
-    - [ ] Allow to remove likes/dislikes
-    - [ ] Add an API for retrieving the most liked poems, annotations, and users with the most points.
+    - [x] Allow to remove likes/dislikes
+    - [x] Add an API for retrieving the most liked poems, annotations, and users with the most points.
     - [x] Include points in user data.
 - Testing
     - [ ] Create class for populating database with test data.

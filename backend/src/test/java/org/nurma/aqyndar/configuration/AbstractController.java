@@ -1,7 +1,6 @@
-package org.nurma.aqyndar.controller;
+package org.nurma.aqyndar.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.nurma.aqyndar.configuration.IntegrationEnvironment;
 import org.nurma.aqyndar.dto.request.CreateAnnotationRequest;
 import org.nurma.aqyndar.dto.request.CreateAuthorRequest;
 import org.nurma.aqyndar.dto.request.CreatePoemRequest;
@@ -29,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-public class AbstractControllerTest extends IntegrationEnvironment {
+public class AbstractController extends IntegrationEnvironment {
     @Autowired
     protected MockMvc mockMvc;
 

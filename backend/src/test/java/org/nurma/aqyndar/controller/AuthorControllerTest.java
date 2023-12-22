@@ -3,6 +3,7 @@ package org.nurma.aqyndar.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.nurma.aqyndar.configuration.AbstractController;
 import org.nurma.aqyndar.constant.ExceptionTitle;
 import org.nurma.aqyndar.dto.request.CreateAuthorRequest;
 import org.nurma.aqyndar.dto.request.CreatePoemRequest;
@@ -21,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @Transactional
-class AuthorControllerTest extends AbstractControllerTest {
+class AuthorControllerTest extends AbstractController {
     private static final String EMAIL = "steve@gmail.com";
     private static final String FIRST_NAME = "Stevie";
     private static final String PASSWORD = "12345678";

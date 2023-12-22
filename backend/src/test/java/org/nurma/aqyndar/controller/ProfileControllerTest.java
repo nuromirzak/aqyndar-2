@@ -2,6 +2,7 @@ package org.nurma.aqyndar.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.nurma.aqyndar.configuration.TestDataFactory;
 import org.nurma.aqyndar.constant.ExceptionTitle;
 import org.nurma.aqyndar.dto.request.CreateAnnotationRequest;
 import org.nurma.aqyndar.dto.request.CreateAuthorRequest;
@@ -27,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @Transactional
-class ProfileControllerTest extends AbstractControllerTest {
+class ProfileControllerTest extends TestDataFactory {
     private static final String EMAIL = "steve@gmail.com";
     private static final String FIRST_NAME = "Stevie";
     private static final String PASSWORD = "12345678";
@@ -114,17 +115,10 @@ class ProfileControllerTest extends AbstractControllerTest {
     @Test
     void testPointsWithLikes() throws Exception {
         for (int i = 0; i < 5; i++) {
-            SignupRequest signupRequest = new SignupRequest(EMAIL + i, FIRST_NAME + i, PASSWORD);
-            signUp(signupRequest);
-            String token = fromJson(
-                    signin(new SigninRequest(EMAIL + i, PASSWORD)),
-                    JwtResponse.class)
-                    .getAccessToken();
-
             UpdateReactionRequest updateReactionRequest = new UpdateReactionRequest(ReactedEntity.POEM.name(), poemId,
                     ReactionType.LIKE.getValue());
 
-            updateReaction(updateReactionRequest, token);
+            updateReactionWithRandomUser(updateReactionRequest);
         }
 
         getLikes(userId)
@@ -138,13 +132,6 @@ class ProfileControllerTest extends AbstractControllerTest {
     @Test
     void testPointsWithLikesWithDifferentEntity() throws Exception {
         for (int i = 0; i < 6; i++) {
-            SignupRequest signupRequest = new SignupRequest(EMAIL + i, FIRST_NAME + i, PASSWORD);
-            signUp(signupRequest);
-            String token = fromJson(
-                    signin(new SigninRequest(EMAIL + i, PASSWORD)),
-                    JwtResponse.class)
-                    .getAccessToken();
-
             UpdateReactionRequest updateReactionRequest;
 
             if (i % 2 == 0) {
@@ -155,7 +142,7 @@ class ProfileControllerTest extends AbstractControllerTest {
                         ReactionType.LIKE.getValue());
             }
 
-            updateReaction(updateReactionRequest, token);
+            updateReactionWithRandomUser(updateReactionRequest);
         }
 
         getLikes(userId)
@@ -169,17 +156,10 @@ class ProfileControllerTest extends AbstractControllerTest {
     @Test
     void testPointsWithDislikes() throws Exception {
         for (int i = 0; i < 5; i++) {
-            SignupRequest signupRequest = new SignupRequest(EMAIL + i, FIRST_NAME + i, PASSWORD);
-            signUp(signupRequest);
-            String token = fromJson(
-                    signin(new SigninRequest(EMAIL + i, PASSWORD)),
-                    JwtResponse.class)
-                    .getAccessToken();
-
             UpdateReactionRequest updateReactionRequest = new UpdateReactionRequest(ReactedEntity.POEM.name(), poemId,
                     ReactionType.DISLIKE.getValue());
 
-            updateReaction(updateReactionRequest, token);
+            updateReactionWithRandomUser(updateReactionRequest);
         }
 
         getLikes(userId)
@@ -193,13 +173,6 @@ class ProfileControllerTest extends AbstractControllerTest {
     @Test
     void testPointsWithLikesAndDislikes() throws Exception {
         for (int i = 0; i < 6; i++) {
-            SignupRequest signupRequest = new SignupRequest(EMAIL + i, FIRST_NAME + i, PASSWORD);
-            signUp(signupRequest);
-            String token = fromJson(
-                    signin(new SigninRequest(EMAIL + i, PASSWORD)),
-                    JwtResponse.class)
-                    .getAccessToken();
-
             UpdateReactionRequest updateReactionRequest;
 
             if (i % 2 == 0) {
@@ -210,7 +183,7 @@ class ProfileControllerTest extends AbstractControllerTest {
                         ReactionType.DISLIKE.getValue());
             }
 
-            updateReaction(updateReactionRequest, token);
+            updateReactionWithRandomUser(updateReactionRequest);
         }
 
         getLikes(userId)
@@ -227,18 +200,12 @@ class ProfileControllerTest extends AbstractControllerTest {
                 new UpdateReactionRequest(ReactedEntity.POEM.name(), poemId, ReactionType.LIKE.getValue()),
                 new UpdateReactionRequest(ReactedEntity.POEM.name(), poemId, ReactionType.DISLIKE.getValue()),
                 new UpdateReactionRequest(ReactedEntity.ANNOTATION.name(), annotationId, ReactionType.LIKE.getValue()),
-                new UpdateReactionRequest(ReactedEntity.ANNOTATION.name(), annotationId, ReactionType.DISLIKE.getValue())
+                new UpdateReactionRequest(ReactedEntity.ANNOTATION.name(), annotationId,
+                        ReactionType.DISLIKE.getValue())
         );
 
         for (int i = 0; i < 4; i++) {
-            SignupRequest signupRequest = new SignupRequest(EMAIL + i, FIRST_NAME + i, PASSWORD);
-            signUp(signupRequest);
-            String token = fromJson(
-                    signin(new SigninRequest(EMAIL + i, PASSWORD)),
-                    JwtResponse.class)
-                    .getAccessToken();
-
-            updateReaction(updateReactionRequests.get(i), token);
+            updateReactionWithRandomUser(updateReactionRequests.get(i));
         }
 
         getLikes(userId)

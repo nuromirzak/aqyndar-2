@@ -3,6 +3,7 @@ package org.nurma.aqyndar.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.nurma.aqyndar.configuration.TestDataFactory;
 import org.nurma.aqyndar.constant.ExceptionTitle;
 import org.nurma.aqyndar.dto.request.CreateAnnotationRequest;
 import org.nurma.aqyndar.dto.request.CreateAuthorRequest;
@@ -35,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @Transactional
-class ReactionControllerTest extends AbstractControllerTest {
+class ReactionControllerTest extends TestDataFactory {
     private static final String EMAIL = "steve@gmail.com";
     private static final String FIRST_NAME = "Stevie";
     private static final String PASSWORD = "12345678";
@@ -115,11 +116,30 @@ class ReactionControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void removePutReaction() throws Exception {
+        UpdateReactionRequest likeUpdateReactionRequest =
+                new UpdateReactionRequest(ReactedEntity.ANNOTATION.name(), annotationId, ReactionType.LIKE.getValue());
+
+        updateReaction(likeUpdateReactionRequest, token);
+
+        UpdateReactionRequest removeUpdateReactionRequest =
+                new UpdateReactionRequest(ReactedEntity.ANNOTATION.name(), annotationId,
+                        ReactionType.NONE.getValue());
+
+        updateReaction(removeUpdateReactionRequest, token);
+
+        getReaction(ReactedEntity.ANNOTATION.name(), annotationId, token)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.likes").value(0))
+                .andExpect(jsonPath("$.dislikes").value(0));
+    }
+
+    @Test
     void countLike() throws Exception {
         UpdateReactionRequest updateReactionRequest =
                 new UpdateReactionRequest(ReactedEntity.POEM.name(), poemId, ReactionType.LIKE.getValue());
 
-        updateReaction(updateReactionRequest, token);
+        updateReactionWithRandomUser(updateReactionRequest);
 
         getReaction(ReactedEntity.POEM.name(), poemId, token)
                 .andExpect(status().isOk())
@@ -216,21 +236,12 @@ class ReactionControllerTest extends AbstractControllerTest {
         List<Exception> exceptions = Collections.synchronizedList(new ArrayList<>());
 
         for (int i = 0; i < numberOfThreads; i++) {
-            int finalI = i;
             executorService.submit(() -> {
                 try {
-                    SignupRequest signupRequest = new SignupRequest(EMAIL + finalI, FIRST_NAME, PASSWORD);
-                    signUp(signupRequest);
-
-                    String token = fromJson(
-                            signin(new SigninRequest(EMAIL + finalI, PASSWORD)),
-                            JwtResponse.class)
-                            .getAccessToken();
-
                     UpdateReactionRequest localUpdateReactionRequest =
                             new UpdateReactionRequest(ReactedEntity.POEM.name(), poemId, ReactionType.LIKE.getValue());
 
-                    updateReaction(localUpdateReactionRequest, token);
+                    updateReactionWithRandomUser(localUpdateReactionRequest);
                 } catch (Exception e) {
                     exceptions.add(e);
                 } finally {
@@ -259,18 +270,10 @@ class ReactionControllerTest extends AbstractControllerTest {
 
         for (int i = 0; i < numberOfIterations; i++) {
             try {
-                SignupRequest signupRequest = new SignupRequest(EMAIL + i, FIRST_NAME, PASSWORD);
-                signUp(signupRequest);
-
-                String token = fromJson(
-                        signin(new SigninRequest(EMAIL + i, PASSWORD)),
-                        JwtResponse.class)
-                        .getAccessToken();
-
                 UpdateReactionRequest updateReactionRequest =
                         new UpdateReactionRequest(ReactedEntity.POEM.name(), poemId, ReactionType.LIKE.getValue());
 
-                updateReaction(updateReactionRequest, token);
+                updateReactionWithRandomUser(updateReactionRequest);
             } catch (Exception e) {
                 exceptions.add(e);
             }
@@ -297,40 +300,25 @@ class ReactionControllerTest extends AbstractControllerTest {
             poemIds.add(id);
         }
 
-        final int usersCount = 3;
-        List<String> tokens = new ArrayList<>();
-
-        for (int i = 0; i < usersCount; i++) {
-            SignupRequest signupRequest = new SignupRequest(EMAIL + i, FIRST_NAME, PASSWORD);
-            signUp(signupRequest);
-
-            String token = fromJson(
-                    signin(new SigninRequest(EMAIL + i, PASSWORD)),
-                    JwtResponse.class)
-                    .getAccessToken();
-
-            tokens.add(token);
-        }
-
         for (int i = 0; i < 3; i++) {
             UpdateReactionRequest updateReactionRequest =
                     new UpdateReactionRequest(ReactedEntity.POEM.name(), poemIds.get(9), ReactionType.LIKE.getValue());
 
-            updateReaction(updateReactionRequest, tokens.get(i));
+            updateReactionWithRandomUser(updateReactionRequest);
         }
 
         for (int i = 0; i < 2; i++) {
             UpdateReactionRequest updateReactionRequest =
                     new UpdateReactionRequest(ReactedEntity.POEM.name(), poemIds.get(1), ReactionType.LIKE.getValue());
 
-            updateReaction(updateReactionRequest, tokens.get(i));
+            updateReactionWithRandomUser(updateReactionRequest);
         }
 
         for (int i = 0; i < 1; i++) {
             UpdateReactionRequest updateReactionRequest =
                     new UpdateReactionRequest(ReactedEntity.POEM.name(), poemIds.get(5), ReactionType.LIKE.getValue());
 
-            updateReaction(updateReactionRequest, tokens.get(i));
+            updateReactionWithRandomUser(updateReactionRequest);
         }
 
         getTopEntities(TopEntity.POEM.name())
