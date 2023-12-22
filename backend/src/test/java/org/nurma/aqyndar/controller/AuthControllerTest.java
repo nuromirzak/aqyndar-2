@@ -128,26 +128,4 @@ class AuthControllerTest extends AbstractControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
     }
-
-    @Test
-    void who_with_anonymous() throws Exception {
-        who(null)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").doesNotExist());
-    }
-
-    @Test
-    void who_with_user() throws Exception {
-        SignupRequest signupRequest = new SignupRequest(EMAIL, PASSWORD, PASSWORD);
-        signUp(signupRequest);
-
-        JwtResponse jwtResponse = fromJson(
-                signin(new SigninRequest(EMAIL, PASSWORD)),
-                JwtResponse.class
-        );
-
-        who(jwtResponse.getAccessToken())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value(EMAIL));
-    }
 }

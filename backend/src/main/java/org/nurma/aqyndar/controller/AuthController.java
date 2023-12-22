@@ -5,11 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.nurma.aqyndar.dto.request.RefreshRequest;
 import org.nurma.aqyndar.dto.request.SigninRequest;
 import org.nurma.aqyndar.dto.request.SignupRequest;
-import org.nurma.aqyndar.dto.response.GetWhoResponse;
 import org.nurma.aqyndar.dto.response.JwtResponse;
 import org.nurma.aqyndar.dto.response.SignupResponse;
 import org.nurma.aqyndar.service.AuthService;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,11 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
-
-    @GetMapping("/who")
-    public GetWhoResponse getCurrentUser() {
-        return authService.getCurrentUser();
-    }
 
     @PostMapping("/signup")
     public SignupResponse signup(@RequestBody @Valid final SignupRequest signupRequest) {

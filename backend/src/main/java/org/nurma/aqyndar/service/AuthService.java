@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurma.aqyndar.dto.request.SigninRequest;
 import org.nurma.aqyndar.dto.request.SignupRequest;
-import org.nurma.aqyndar.dto.response.GetWhoResponse;
 import org.nurma.aqyndar.dto.response.JwtResponse;
 import org.nurma.aqyndar.dto.response.SignupResponse;
 import org.nurma.aqyndar.entity.Role;
@@ -14,7 +13,6 @@ import org.nurma.aqyndar.exception.CustomAuthenticationException;
 import org.nurma.aqyndar.exception.ValidationException;
 import org.nurma.aqyndar.security.JwtAuthentication;
 import org.nurma.aqyndar.security.JwtProvider;
-import org.nurma.aqyndar.util.EntityToDTOMapper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -73,19 +71,6 @@ public class AuthService {
 
         return userService.getByEmail(email)
                 .orElseThrow(() -> new CustomAuthenticationException(USER_NOT_FOUND.formatted(email)));
-    }
-
-    public GetWhoResponse getCurrentUser() {
-        User user;
-
-        try {
-            user = getCurrentUserEntity();
-        } catch (Exception e) {
-            log.warn(e);
-            user = new User();
-        }
-
-        return EntityToDTOMapper.mapUserToGetWhoResponse(user);
     }
 
     public SignupResponse signup(final SignupRequest signupRequest) {
