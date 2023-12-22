@@ -26,6 +26,7 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a -> a
                         .requestMatchers(HttpMethod.GET, "/profile/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/reaction/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/author/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/poem/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/annotation/**").permitAll()
