@@ -86,8 +86,8 @@ public class ReactionService {
     }
 
     public GetReactionResponse getReaction(final ReactedEntity reactedEntity, final int reactedEntityId) {
-        int likes = reactionRepository.countLikes(reactedEntity, reactedEntityId);
-        int dislikes = reactionRepository.countDislikes(reactedEntity, reactedEntityId);
+        int likes = reactionRepository.countLikesForEntity(reactedEntity, reactedEntityId);
+        int dislikes = reactionRepository.countDislikesForEntity(reactedEntity, reactedEntityId);
 
         return new GetReactionResponse(dislikes, likes);
     }

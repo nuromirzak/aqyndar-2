@@ -18,7 +18,8 @@ public interface ReactionRepository extends JpaRepository<Reaction, Integer> {
                 AND r.reactedEntityId = :reactedEntityId
                 AND r.reactionType = 1
                 """)
-    int countLikes(@Param("reactedEntity") ReactedEntity reactedEntity, @Param("reactedEntityId") int reactedEntityId);
+    int countLikesForEntity(@Param("reactedEntity") ReactedEntity reactedEntity,
+                            @Param("reactedEntityId") int reactedEntityId);
 
     @Query("""
             SELECT COUNT(r) FROM Reaction r
@@ -26,6 +27,22 @@ public interface ReactionRepository extends JpaRepository<Reaction, Integer> {
                 AND r.reactedEntityId = :reactedEntityId
                 AND r.reactionType = -1
                 """)
-    int countDislikes(@Param("reactedEntity") ReactedEntity reactedEntity,
-                      @Param("reactedEntityId") int reactedEntityId);
+    int countDislikesForEntity(@Param("reactedEntity") ReactedEntity reactedEntity,
+                               @Param("reactedEntityId") int reactedEntityId);
+
+    @Query("""
+            SELECT COUNT(*) FROM Reaction r
+            WHERE r.reactedEntity = :entity
+            AND r.reactedEntityId IN :entityIds
+            AND r.reactionType = 1
+            """)
+    Integer countLikesOfUser(@Param("entity") ReactedEntity entity, @Param("entityIds") Iterable<Integer> entityIds);
+
+    @Query("""
+            SELECT COUNT(*) FROM Reaction r
+            WHERE r.reactedEntity = :entity
+            AND r.reactedEntityId IN :entityIds
+            AND r.reactionType = -1
+            """)
+    Integer countDislikesOfUser(@Param("entity") ReactedEntity entity, @Param("entityIds") Iterable<Integer> entityIds);
 }

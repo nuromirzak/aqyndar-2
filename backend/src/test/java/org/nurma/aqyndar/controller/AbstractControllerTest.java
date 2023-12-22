@@ -12,7 +12,6 @@ import org.nurma.aqyndar.dto.request.RefreshRequest;
 import org.nurma.aqyndar.dto.request.SigninRequest;
 import org.nurma.aqyndar.dto.request.SignupRequest;
 import org.nurma.aqyndar.dto.request.UpdateReactionRequest;
-import org.nurma.aqyndar.entity.enums.ReactedEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -78,10 +77,6 @@ public class AbstractControllerTest extends IntegrationEnvironment {
     protected <T> T fromJson(ResultActions resultActions, Class<T> clazz) throws Exception {
         String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
         return objectMapper.readValue(contentAsString, clazz);
-    }
-
-    protected ResultActions who(String token) throws Exception {
-        return performGetWithToken("/who", token);
     }
 
     protected ResultActions signUp(SignupRequest signupRequest) throws Exception {
@@ -207,6 +202,19 @@ public class AbstractControllerTest extends IntegrationEnvironment {
     }
 
     protected ResultActions getReaction(String reactedEntity, int reactedEntityId, String token) throws Exception {
-        return performGetWithToken("/reaction?reactedEntity=" + reactedEntity + "&reactedEntityId=" + reactedEntityId, token);
+        return performGetWithToken("/reaction?reactedEntity=" + reactedEntity + "&reactedEntityId=" + reactedEntityId,
+                token);
+    }
+
+    protected ResultActions getCurrentUser(String token) throws Exception {
+        return performGetWithToken("/profile", token);
+    }
+
+    protected ResultActions getUser(int id) throws Exception {
+        return performGet("/profile/" + id);
+    }
+
+    protected ResultActions getLikes(int id) throws Exception {
+        return performGet("/profile/" + id + "/likes");
     }
 }

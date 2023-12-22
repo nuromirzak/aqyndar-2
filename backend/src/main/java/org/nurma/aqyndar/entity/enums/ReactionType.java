@@ -1,5 +1,8 @@
 package org.nurma.aqyndar.entity.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum ReactionType {
     LIKE(1), NONE(0), DISLIKE(-1);
 
@@ -7,10 +10,6 @@ public enum ReactionType {
 
     ReactionType(final int value) {
         this.value = value;
-    }
-
-    public int getValue() {
-        return value;
     }
 
     public static ReactionType fromValue(final int value) {

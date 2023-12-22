@@ -56,7 +56,7 @@ class PoemControllerTest extends AbstractControllerTest {
                 .getAccessToken();
 
         userId = fromJson(
-                who(token),
+                getCurrentUser(token),
                 GetWhoResponse.class)
                 .getId();
 
