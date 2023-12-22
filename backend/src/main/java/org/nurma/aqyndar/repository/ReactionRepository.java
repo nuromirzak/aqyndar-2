@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ReactionRepository extends JpaRepository<Reaction, Integer> {
@@ -45,4 +46,12 @@ public interface ReactionRepository extends JpaRepository<Reaction, Integer> {
             AND r.reactionType = -1
             """)
     Integer countDislikesOfUser(@Param("entity") ReactedEntity entity, @Param("entityIds") Iterable<Integer> entityIds);
+
+    @Query("""
+            SELECT r.reactedEntityId, SUM(r.reactionType) as reactionSum FROM Reaction r
+            WHERE r.reactedEntity = :entity
+            GROUP BY r.reactedEntityId
+            ORDER BY reactionSum DESC
+            """)
+    List<Object[]> findTopEntities(@Param("entity") ReactedEntity entity);
 }

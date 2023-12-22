@@ -217,4 +217,8 @@ public class AbstractControllerTest extends IntegrationEnvironment {
     protected ResultActions getLikes(int id) throws Exception {
         return performGet("/profile/" + id + "/likes");
     }
+
+    protected ResultActions getTopEntities(String topEntity) throws Exception {
+        return performGet("/reaction/top?topEntity=" + topEntity);
+    }
 }

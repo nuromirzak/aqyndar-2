@@ -8,8 +8,20 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GetLikesResponse {
-    private Integer poemLikes;
-    private Integer annotationLikes;
-    private Integer poemDislikes;
-    private Integer annotationDislikes;
+    private int poemLikes;
+    private int annotationLikes;
+    private int poemDislikes;
+    private int annotationDislikes;
+
+    public int getLikes() {
+        return poemLikes + annotationLikes;
+    }
+
+    public int getDislikes() {
+        return poemDislikes + annotationDislikes;
+    }
+
+    public int getSum() {
+        return getLikes() - getDislikes();
+    }
 }
