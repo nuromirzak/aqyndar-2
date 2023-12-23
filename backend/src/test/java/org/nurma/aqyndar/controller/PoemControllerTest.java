@@ -16,6 +16,7 @@ import org.nurma.aqyndar.dto.response.GetAuthorResponse;
 import org.nurma.aqyndar.dto.response.GetPoemResponse;
 import org.nurma.aqyndar.dto.response.GetWhoResponse;
 import org.nurma.aqyndar.dto.response.JwtResponse;
+import org.nurma.aqyndar.service.PoemService;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
@@ -218,14 +219,124 @@ class PoemControllerTest extends AbstractController {
     }
 
     @Test
-    void createPoemWithToken() throws Exception {
+    void createMinimalPoemWithToken() throws Exception {
         createPoem(new CreatePoemRequest(POEM_TITLE, POEM_CONTENT, authorId), token)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.title").value(POEM_TITLE))
                 .andExpect(jsonPath("$.content").value(POEM_CONTENT))
                 .andExpect(jsonPath("$.authorId").value(authorId))
-                .andExpect(jsonPath("$.userId").isNotEmpty());
+                .andExpect(jsonPath("$.userId").isNotEmpty())
+                .andExpect(jsonPath("$.schoolGrade").isEmpty())
+                .andExpect(jsonPath("$.complexity").isEmpty())
+                .andExpect(jsonPath("$.topics.length()").value(0));
+    }
+
+    @Test
+    void createPoemWithToken() throws Exception {
+        final int grade = 10;
+        final int complexity = 6;
+        final List<String> topics = List.of("topic1", "topic2", "topic3");
+        CreatePoemRequest createPoemRequest = new CreatePoemRequest(
+                POEM_TITLE, POEM_CONTENT, authorId, grade, complexity, topics);
+
+        createPoem(createPoemRequest, token)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNotEmpty())
+                .andExpect(jsonPath("$.title").value(POEM_TITLE))
+                .andExpect(jsonPath("$.content").value(POEM_CONTENT))
+                .andExpect(jsonPath("$.authorId").value(authorId))
+                .andExpect(jsonPath("$.userId").isNotEmpty())
+                .andExpect(jsonPath("$.schoolGrade").value(grade))
+                .andExpect(jsonPath("$.complexity").value(complexity))
+                .andExpect(jsonPath("$.topics.length()").value(topics.size()))
+                .andExpect(jsonPath("$.topics[0]").value(topics.get(0)))
+                .andExpect(jsonPath("$.topics[1]").value(topics.get(1)))
+                .andExpect(jsonPath("$.topics[2]").value(topics.get(2)));
+    }
+
+    @Test
+    void createPoemWithInvalidGradeAndComplexity() throws Exception {
+        final int gradeAboveMax = PoemService.MAX_GRADE + 1;
+        final Integer complexity = null;
+        final List<String> topics = List.of();
+        CreatePoemRequest createPoemRequest = new CreatePoemRequest(
+                POEM_TITLE, POEM_CONTENT, authorId, gradeAboveMax, complexity, topics);
+
+        createPoem(createPoemRequest, token)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.VALIDATION)));
+
+        final int gradeBelowMin = PoemService.MIN_GRADE - 1;
+        createPoemRequest = new CreatePoemRequest(
+                POEM_TITLE, POEM_CONTENT, authorId, gradeBelowMin, complexity, topics);
+        createPoem(createPoemRequest, token)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.VALIDATION)));
+
+        final int complexityAboveMax = PoemService.MAX_COMPLEXITY + 1;
+        createPoemRequest = new CreatePoemRequest(
+                POEM_TITLE, POEM_CONTENT, authorId, complexity, complexityAboveMax, topics);
+        createPoem(createPoemRequest, token)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.VALIDATION)));
+
+        final int complexityBelowMin = PoemService.MIN_COMPLEXITY - 1;
+        createPoemRequest = new CreatePoemRequest(
+                POEM_TITLE, POEM_CONTENT, authorId, complexity, complexityBelowMin, topics);
+        createPoem(createPoemRequest, token)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.VALIDATION)));
+    }
+
+    @Test
+    void createPoemWithInvalidComplexity() throws Exception {
+        final int grade = 10;
+        final int exceedingComplexity = 11;
+        final List<String> topics = List.of();
+        CreatePoemRequest createPoemRequest = new CreatePoemRequest(
+                POEM_TITLE, POEM_CONTENT, authorId, grade, exceedingComplexity, topics);
+
+        createPoem(createPoemRequest, token)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.VALIDATION)));
+
+        final int minimumComplexity = 0;
+        createPoemRequest = new CreatePoemRequest(
+                POEM_TITLE, POEM_CONTENT, authorId, grade, minimumComplexity, topics);
+        createPoem(createPoemRequest, token)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.VALIDATION)));
+    }
+
+    @Test
+    void createPoemWithRepeatingTopics() throws Exception {
+        final Integer grade = null;
+        final Integer complexity = null;
+        final List<String> topics = List.of("topic1", "topic1", "topic1", "topic2", "topic3");
+        CreatePoemRequest createPoemRequest = new CreatePoemRequest(
+                POEM_TITLE, POEM_CONTENT, authorId, grade, complexity, topics);
+
+        createPoem(createPoemRequest, token)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNotEmpty())
+                .andExpect(jsonPath("$.title").value(POEM_TITLE))
+                .andExpect(jsonPath("$.content").value(POEM_CONTENT))
+                .andExpect(jsonPath("$.authorId").value(authorId))
+                .andExpect(jsonPath("$.userId").isNotEmpty())
+                .andExpect(jsonPath("$.schoolGrade").isEmpty())
+                .andExpect(jsonPath("$.complexity").isEmpty())
+                .andExpect(jsonPath("$.topics.length()").value(3))
+                .andExpect(jsonPath("$.topics[0]").value(topics.get(0)))
+                .andExpect(jsonPath("$.topics[1]").value(topics.get(3)))
+                .andExpect(jsonPath("$.topics[2]").value(topics.get(4)));
+
+        getAllTopics()
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(3))
+                .andExpect(jsonPath("$[0].name").value(topics.get(0)))
+                .andExpect(jsonPath("$[1].name").value(topics.get(3)))
+                .andExpect(jsonPath("$[2].name").value(topics.get(4)));
     }
 
     @Test
@@ -288,9 +399,15 @@ class PoemControllerTest extends AbstractController {
                 .getId();
 
         String newTitle = "I'm new title";
+        Integer newSchoolGrade = 10;
+        Integer newComplexity = 5;
+        List<String> newTopics = List.of("topic1", "topic2", "topic3");
         PatchPoemRequest patchPoemRequest = PatchPoemRequest.builder()
                 .title(newTitle)
                 .authorId(newAuthorId)
+                .schoolGrade(newSchoolGrade)
+                .complexity(newComplexity)
+                .topics(newTopics)
                 .build();
 
         updatePoem(poemId, patchPoemRequest, token)
@@ -298,7 +415,47 @@ class PoemControllerTest extends AbstractController {
                 .andExpect(jsonPath("$.id").value(poemId))
                 .andExpect(jsonPath("$.title").value(newTitle))
                 .andExpect(jsonPath("$.content").value(POEM_CONTENT))
-                .andExpect(jsonPath("$.authorId").value(newAuthorId));
+                .andExpect(jsonPath("$.authorId").value(newAuthorId))
+                .andExpect(jsonPath("$.schoolGrade").value(newSchoolGrade))
+                .andExpect(jsonPath("$.complexity").value(newComplexity))
+                .andExpect(jsonPath("$.topics.length()").value(newTopics.size()))
+                .andExpect(jsonPath("$.topics[0]").value(newTopics.get(0)))
+                .andExpect(jsonPath("$.topics[1]").value(newTopics.get(1)))
+                .andExpect(jsonPath("$.topics[2]").value(newTopics.get(2)));
+    }
+
+    @Test
+    void patchWithExistingTopics() throws Exception {
+        Integer newSchoolGrade = 12;
+        Integer newComplexity = 1;
+        List<String> topics = List.of("topic1");
+        CreatePoemRequest createPoemRequest = new CreatePoemRequest(
+                POEM_TITLE, POEM_CONTENT, authorId, newSchoolGrade, newComplexity, topics);
+
+        int poemId = fromJson(createPoem(createPoemRequest, token), GetPoemResponse.class).getId();
+
+        String newTitle = "I'm new title";
+        List<String> newTopics = new ArrayList<>(topics);
+        PatchPoemRequest patchPoemRequest = PatchPoemRequest.builder()
+                .title(newTitle)
+                .topics(newTopics)
+                .build();
+
+        updatePoem(poemId, patchPoemRequest, token)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(poemId))
+                .andExpect(jsonPath("$.title").value(newTitle))
+                .andExpect(jsonPath("$.content").value(POEM_CONTENT))
+                .andExpect(jsonPath("$.authorId").value(authorId))
+                .andExpect(jsonPath("$.schoolGrade").value(newSchoolGrade))
+                .andExpect(jsonPath("$.complexity").value(newComplexity))
+                .andExpect(jsonPath("$.topics.length()").value(newTopics.size()))
+                .andExpect(jsonPath("$.topics[0]").value(newTopics.get(0)));
+
+        getAllTopics()
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].name").value(newTopics.get(0)));
     }
 
     @Test
@@ -325,6 +482,60 @@ class PoemControllerTest extends AbstractController {
         updatePoem(nonExistingPoemId, patchPoemRequest, token)
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.title", is(ExceptionTitle.NOT_FOUND)));
+    }
+
+    @Test
+    void patchPoemWithInvalidGradeAndComplexity() throws Exception {
+        final int gradeAboveMax = PoemService.MAX_GRADE + 1;
+        final Integer complexity = null;
+        final List<String> topics = List.of();
+        PatchPoemRequest patchPoemRequest = PatchPoemRequest.builder()
+                .schoolGrade(gradeAboveMax)
+                .complexity(complexity)
+                .topics(topics)
+                .build();
+
+        int poemId = fromJson(
+                createPoem(new CreatePoemRequest(POEM_TITLE, POEM_CONTENT, authorId), token),
+                GetPoemResponse.class)
+                .getId();
+
+        updatePoem(poemId, patchPoemRequest, token)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.VALIDATION)));
+
+        final int gradeBelowMin = PoemService.MIN_GRADE - 1;
+        patchPoemRequest = PatchPoemRequest.builder()
+                .schoolGrade(gradeBelowMin)
+                .complexity(complexity)
+                .topics(topics)
+                .build();
+
+        updatePoem(poemId, patchPoemRequest, token)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.VALIDATION)));
+
+        final int complexityAboveMax = PoemService.MAX_COMPLEXITY + 1;
+        patchPoemRequest = PatchPoemRequest.builder()
+                .schoolGrade(complexityAboveMax)
+                .complexity(complexityAboveMax)
+                .topics(topics)
+                .build();
+
+        updatePoem(poemId, patchPoemRequest, token)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.VALIDATION)));
+
+        final int complexityBelowMin = PoemService.MIN_COMPLEXITY - 1;
+        patchPoemRequest = PatchPoemRequest.builder()
+                .schoolGrade(complexityBelowMin)
+                .complexity(complexityBelowMin)
+                .topics(topics)
+                .build();
+
+        updatePoem(poemId, patchPoemRequest, token)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.VALIDATION)));
     }
 
     @Test
@@ -390,5 +601,30 @@ class PoemControllerTest extends AbstractController {
         deletePoem(poemId, null)
                 .andExpect(status().isForbidden());
 //                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
+    }
+
+    @Test
+    void getTopics() throws Exception {
+        getAllTopics()
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void getTopicsWithPoems() throws Exception {
+        Integer grade = 10;
+        Integer complexity = 5;
+        List<String> topics = List.of("topic1", "topic2", "topic3");
+        CreatePoemRequest createPoemRequest = new CreatePoemRequest(
+                POEM_TITLE, POEM_CONTENT, authorId, grade, complexity, topics);
+
+        createPoem(createPoemRequest, token);
+
+        getAllTopics()
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(topics.size()))
+                .andExpect(jsonPath("$[0].name").value(topics.get(0)))
+                .andExpect(jsonPath("$[1].name").value(topics.get(1)))
+                .andExpect(jsonPath("$[2].name").value(topics.get(2)));
     }
 }

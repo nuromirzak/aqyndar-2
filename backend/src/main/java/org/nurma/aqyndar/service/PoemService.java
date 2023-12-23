@@ -5,12 +5,16 @@ import org.nurma.aqyndar.dto.request.CreatePoemRequest;
 import org.nurma.aqyndar.dto.request.PatchPoemRequest;
 import org.nurma.aqyndar.dto.response.DeleteResponse;
 import org.nurma.aqyndar.dto.response.GetPoemResponse;
+import org.nurma.aqyndar.dto.response.GetTopicResponse;
 import org.nurma.aqyndar.entity.Author;
 import org.nurma.aqyndar.entity.Poem;
+import org.nurma.aqyndar.entity.Topic;
 import org.nurma.aqyndar.entity.User;
 import org.nurma.aqyndar.exception.ResourceNotFound;
+import org.nurma.aqyndar.exception.ValidationException;
 import org.nurma.aqyndar.repository.AuthorRepository;
 import org.nurma.aqyndar.repository.PoemRepository;
+import org.nurma.aqyndar.repository.TopicRepository;
 import org.nurma.aqyndar.util.EntityToDTOMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +32,13 @@ public class PoemService {
     private final PoemRepository poemRepository;
     private final AuthorRepository authorRepository;
     private final AuthService authService;
+    private final TopicRepository topicRepository;
+    public static final int MIN_GRADE = 1;
+    public static final int MAX_GRADE = 12;
+    public static final int MIN_COMPLEXITY = 1;
+    public static final int MAX_COMPLEXITY = 10;
+    private static final String GRADE_OUT_OF_RANGE = "Grade must be between %s and %s";
+    private static final String COMPLEXITY_OUT_OF_RANGE = "Complexity must be between %s and %s";
 
     public GetPoemResponse getPoemById(final int id) {
         Optional<Poem> poemOptional = poemRepository.findById(id);
@@ -54,6 +65,29 @@ public class PoemService {
         poem.setTitle(request.getTitle());
         poem.setContent(request.getContent());
         poem.setAuthor(authorOptional.get());
+
+        if (request.getSchoolGrade() != null) {
+            int schoolGrade = request.getSchoolGrade();
+
+            if (schoolGrade < MIN_GRADE || schoolGrade > MAX_GRADE) {
+                throw new ValidationException(GRADE_OUT_OF_RANGE.formatted(MIN_GRADE, MAX_GRADE));
+            }
+
+            poem.setSchoolGrade(schoolGrade);
+        }
+
+        if (request.getComplexity() != null) {
+            int complexity = request.getComplexity();
+
+            if (complexity < MIN_COMPLEXITY || complexity > MAX_COMPLEXITY) {
+                throw new ValidationException(COMPLEXITY_OUT_OF_RANGE.formatted(MIN_COMPLEXITY, MAX_COMPLEXITY));
+            }
+
+            poem.setComplexity(complexity);
+        }
+
+        List<Topic> topics = topicRepository.insertIfNotExist(request.getTopics());
+        poem.setTopics(topics);
 
         User user = authService.getCurrentUserEntity();
         poem.setUser(user);
@@ -86,6 +120,32 @@ public class PoemService {
 
             poem.setAuthor(authorOptional.get());
         }
+        if (request.getSchoolGrade() != null) {
+            int schoolGrade = request.getSchoolGrade();
+
+            if (schoolGrade < MIN_GRADE || schoolGrade > MAX_GRADE) {
+                throw new ValidationException(GRADE_OUT_OF_RANGE.formatted(MIN_GRADE, MAX_GRADE));
+            }
+
+            poem.setSchoolGrade(schoolGrade);
+        }
+        if (request.getComplexity() != null) {
+            int complexity = request.getComplexity();
+
+            if (complexity < MIN_COMPLEXITY || complexity > MAX_COMPLEXITY) {
+                throw new ValidationException(COMPLEXITY_OUT_OF_RANGE.formatted(MIN_COMPLEXITY, MAX_COMPLEXITY));
+            }
+
+            poem.setComplexity(complexity);
+        }
+        if (request.getTopics() != null) {
+            List<Topic> topics = topicRepository.insertIfNotExist(request.getTopics());
+            for (Topic topic : topics) {
+                if (!poem.getTopics().contains(topic)) {
+                    poem.getTopics().add(topic);
+                }
+            }
+        }
         Poem savedPoem = poemRepository.save(poem);
 
         return EntityToDTOMapper.mapPoemToGetPoemResponse(savedPoem);
@@ -114,5 +174,13 @@ public class PoemService {
         }
 
         return getPoemResponses;
+    }
+
+    public List<GetTopicResponse> getAllTopics() {
+        List<Topic> topics = topicRepository.findAll();
+
+        return topics.stream()
+                .map(EntityToDTOMapper::mapTopicToGetTopicResponse)
+                .toList();
     }
 }
