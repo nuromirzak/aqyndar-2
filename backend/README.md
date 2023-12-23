@@ -5,7 +5,7 @@
 - Poems
     - [x] Make poems unchangeable.
     - [x] Allow annotation of poems by character range, not by line.
-    - [ ] Add complexity level, topics list, and school grade to each poem.
+    - [x] Add complexity level, topics list, and school grade to each poem.
     - [x] Track who added each poem and annotation.
 - Gamification
     - [x] Allow users to like poems and annotations.

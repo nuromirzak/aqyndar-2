@@ -8,6 +8,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -45,4 +47,17 @@ public class Poem {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @Column(name = "school_grade")
+    private Integer schoolGrade;
+
+    @Column(name = "complexity")
+    private Integer complexity;
+
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "poem_topic",
+            joinColumns = @JoinColumn(name = "poem_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "topic_id", referencedColumnName = "id"))
+    private List<Topic> topics = new ArrayList<>();
 }

@@ -220,4 +220,8 @@ public class AbstractController extends IntegrationEnvironment {
     protected ResultActions getTopEntities(String topEntity) throws Exception {
         return performGet("/reaction/top?topEntity=" + topEntity);
     }
+
+    protected ResultActions getAllTopics() throws Exception {
+        return performGet("/poem/topics");
+    }
 }

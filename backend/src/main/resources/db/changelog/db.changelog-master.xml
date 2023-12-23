@@ -101,6 +101,12 @@
             <column name="user_id" type="int">
                 <constraints nullable="false"/>
             </column>
+            <column name="school_grade" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="complexity" type="int">
+                <constraints nullable="true"/>
+            </column>
         </createTable>
 
         <addForeignKeyConstraint baseTableName="poem"
@@ -177,4 +183,37 @@
                                  referencedColumnNames="id"/>
     </changeSet>
 
+    <changeSet id="create-topic-table" author="Nurmukhammed">
+        <createTable tableName="topic">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="link-poem-and-topic-tables" author="Nurmukhammed">
+        <createTable tableName="poem_topic">
+            <column name="poem_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="topic_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="poem_topic"
+                                 baseColumnNames="poem_id"
+                                 constraintName="poem_topic_poem_id_fk"
+                                 referencedTableName="poem"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="poem_topic"
+                                 baseColumnNames="topic_id"
+                                 constraintName="poem_topic_topic_id_fk"
+                                 referencedTableName="topic"
+                                 referencedColumnNames="id"/>
+    </changeSet>
 </databaseChangeLog>

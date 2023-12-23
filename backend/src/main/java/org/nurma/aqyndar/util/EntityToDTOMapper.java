@@ -4,10 +4,12 @@ import lombok.experimental.UtilityClass;
 import org.nurma.aqyndar.dto.response.GetAnnotationResponse;
 import org.nurma.aqyndar.dto.response.GetAuthorResponse;
 import org.nurma.aqyndar.dto.response.GetPoemResponse;
+import org.nurma.aqyndar.dto.response.GetTopicResponse;
 import org.nurma.aqyndar.dto.response.GetWhoResponse;
 import org.nurma.aqyndar.entity.Annotation;
 import org.nurma.aqyndar.entity.Author;
 import org.nurma.aqyndar.entity.Poem;
+import org.nurma.aqyndar.entity.Topic;
 import org.nurma.aqyndar.entity.User;
 
 import java.util.ArrayList;
@@ -52,6 +54,12 @@ public class EntityToDTOMapper {
 
         getPoemResponse.setUserId(poem.getUser().getId());
 
+        getPoemResponse.setSchoolGrade(poem.getSchoolGrade());
+        getPoemResponse.setComplexity(poem.getComplexity());
+        getPoemResponse.setTopics(poem.getTopics().stream()
+                .map(Topic::getName)
+                .toList());
+
         return getPoemResponse;
     }
 
@@ -67,5 +75,12 @@ public class EntityToDTOMapper {
         getWhoResponse.setRoles(roles);
 
         return getWhoResponse;
+    }
+
+    public static GetTopicResponse mapTopicToGetTopicResponse(final Topic topic) {
+        GetTopicResponse getTopicResponse = new GetTopicResponse();
+        getTopicResponse.setId(topic.getId());
+        getTopicResponse.setName(topic.getName());
+        return getTopicResponse;
     }
 }
