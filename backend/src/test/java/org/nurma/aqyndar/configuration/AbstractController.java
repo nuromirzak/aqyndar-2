@@ -224,4 +224,8 @@ public class AbstractController extends IntegrationEnvironment {
     protected ResultActions getAllTopics() throws Exception {
         return performGet("/poem/topics");
     }
+
+    protected ResultActions favicon() throws Exception {
+        return performGet("/favicon.ico");
+    }
 }
