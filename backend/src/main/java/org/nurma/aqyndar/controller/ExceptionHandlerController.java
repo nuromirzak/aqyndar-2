@@ -11,8 +11,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
 @Log4j2
@@ -51,6 +53,18 @@ public class ExceptionHandlerController {
     @ExceptionHandler(value = DataIntegrityViolationException.class)
     public ResponseEntity<Object> handleDataIntegrityViolationException(final DataIntegrityViolationException e) {
         log.warn("{} caught, message: {}", e.getClass(), e.getMessage());
+        return buildResponse(ExceptionTitle.VALIDATION, e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = {MethodArgumentTypeMismatchException.class})
+    public ResponseEntity<Object> handleMethodArgumentTypeMismatchException(
+            final MethodArgumentTypeMismatchException e) {
+        return buildResponse(ExceptionTitle.VALIDATION, e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = {MissingServletRequestParameterException.class})
+    public ResponseEntity<Object> handleMissingServletRequestParameterException(
+            final MissingServletRequestParameterException e) {
         return buildResponse(ExceptionTitle.VALIDATION, e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 

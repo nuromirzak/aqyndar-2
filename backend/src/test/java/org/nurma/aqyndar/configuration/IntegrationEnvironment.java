@@ -11,7 +11,7 @@ import java.sql.SQLException;
 
 abstract public class IntegrationEnvironment {
     private static final String IMAGE_NAME = "postgres:15";
-    public static PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER;
+    public static final PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER;
 
     static {
         POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>(IMAGE_NAME);
