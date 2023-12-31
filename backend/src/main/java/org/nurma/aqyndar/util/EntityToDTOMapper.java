@@ -72,6 +72,7 @@ public class EntityToDTOMapper {
         getWhoResponse.setId(user.getId());
         getWhoResponse.setEmail(user.getEmail());
         getWhoResponse.setFirstName(user.getFirstName());
+        getWhoResponse.setCreatedAt(user.getCreatedAt());
 
         List<String> roles = user.getRoles().stream()
                 .map(role -> role.getName().name())
