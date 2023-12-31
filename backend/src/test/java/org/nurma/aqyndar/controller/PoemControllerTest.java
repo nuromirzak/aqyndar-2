@@ -141,6 +141,7 @@ class PoemControllerTest extends AbstractController {
                 .andExpect(jsonPath("$.title").value(POEM_TITLE))
                 .andExpect(jsonPath("$.content").value(POEM_CONTENT))
                 .andExpect(jsonPath("$.authorId").value(authorId))
+                .andExpect(jsonPath("$.authorName").value(AUTHOR_FULL_NAME))
                 .andExpect(jsonPath("$.userId").isNotEmpty());
     }
 
@@ -226,6 +227,7 @@ class PoemControllerTest extends AbstractController {
                 .andExpect(jsonPath("$.title").value(POEM_TITLE))
                 .andExpect(jsonPath("$.content").value(POEM_CONTENT))
                 .andExpect(jsonPath("$.authorId").value(authorId))
+                .andExpect(jsonPath("$.authorName").value(AUTHOR_FULL_NAME))
                 .andExpect(jsonPath("$.userId").isNotEmpty())
                 .andExpect(jsonPath("$.schoolGrade").isEmpty())
                 .andExpect(jsonPath("$.complexity").isEmpty())
@@ -246,6 +248,7 @@ class PoemControllerTest extends AbstractController {
                 .andExpect(jsonPath("$.title").value(POEM_TITLE))
                 .andExpect(jsonPath("$.content").value(POEM_CONTENT))
                 .andExpect(jsonPath("$.authorId").value(authorId))
+                .andExpect(jsonPath("$.authorName").value(AUTHOR_FULL_NAME))
                 .andExpect(jsonPath("$.userId").isNotEmpty())
                 .andExpect(jsonPath("$.schoolGrade").value(grade))
                 .andExpect(jsonPath("$.complexity").value(complexity))
@@ -323,6 +326,7 @@ class PoemControllerTest extends AbstractController {
                 .andExpect(jsonPath("$.title").value(POEM_TITLE))
                 .andExpect(jsonPath("$.content").value(POEM_CONTENT))
                 .andExpect(jsonPath("$.authorId").value(authorId))
+                .andExpect(jsonPath("$.authorName").value(AUTHOR_FULL_NAME))
                 .andExpect(jsonPath("$.userId").isNotEmpty())
                 .andExpect(jsonPath("$.schoolGrade").isEmpty())
                 .andExpect(jsonPath("$.complexity").isEmpty())
@@ -356,6 +360,7 @@ class PoemControllerTest extends AbstractController {
                 .andExpect(jsonPath("$.title").value(POEM_TITLE))
                 .andExpect(jsonPath("$.content").value(VERY_LONG_STRING))
                 .andExpect(jsonPath("$.authorId").value(authorId))
+                .andExpect(jsonPath("$.authorName").value(AUTHOR_FULL_NAME))
                 .andExpect(jsonPath("$.userId").isNotEmpty());
     }
 
@@ -383,7 +388,8 @@ class PoemControllerTest extends AbstractController {
                 .andExpect(jsonPath("$.id").value(poemId))
                 .andExpect(jsonPath("$.title").value(newTitle))
                 .andExpect(jsonPath("$.content").value(POEM_CONTENT))
-                .andExpect(jsonPath("$.authorId").value(authorId));
+                .andExpect(jsonPath("$.authorId").value(authorId))
+                .andExpect(jsonPath("$.authorName").value(AUTHOR_FULL_NAME));
     }
 
     @Test
@@ -416,6 +422,7 @@ class PoemControllerTest extends AbstractController {
                 .andExpect(jsonPath("$.title").value(newTitle))
                 .andExpect(jsonPath("$.content").value(POEM_CONTENT))
                 .andExpect(jsonPath("$.authorId").value(newAuthorId))
+                .andExpect(jsonPath("$.authorName").value("Pushkin"))
                 .andExpect(jsonPath("$.schoolGrade").value(newSchoolGrade))
                 .andExpect(jsonPath("$.complexity").value(newComplexity))
                 .andExpect(jsonPath("$.topics.length()").value(newTopics.size()))
@@ -447,6 +454,7 @@ class PoemControllerTest extends AbstractController {
                 .andExpect(jsonPath("$.title").value(newTitle))
                 .andExpect(jsonPath("$.content").value(POEM_CONTENT))
                 .andExpect(jsonPath("$.authorId").value(authorId))
+                .andExpect(jsonPath("$.authorName").value(AUTHOR_FULL_NAME))
                 .andExpect(jsonPath("$.schoolGrade").value(newSchoolGrade))
                 .andExpect(jsonPath("$.complexity").value(newComplexity))
                 .andExpect(jsonPath("$.topics.length()").value(newTopics.size()))
@@ -550,7 +558,8 @@ class PoemControllerTest extends AbstractController {
                 .andExpect(jsonPath("$.id").value(poemId))
                 .andExpect(jsonPath("$.title").value(POEM_TITLE))
                 .andExpect(jsonPath("$.content").value(POEM_CONTENT))
-                .andExpect(jsonPath("$.authorId").value(authorId));
+                .andExpect(jsonPath("$.authorId").value(authorId))
+                .andExpect(jsonPath("$.authorName").value(AUTHOR_FULL_NAME));
     }
 
     @Test

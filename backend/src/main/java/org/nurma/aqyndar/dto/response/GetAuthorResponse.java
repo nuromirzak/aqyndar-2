@@ -11,4 +11,5 @@ public class GetAuthorResponse {
     private int id;
     private String fullName;
     private int userId;
+    private int poemsCount;
 }

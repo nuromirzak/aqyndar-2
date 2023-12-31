@@ -1,6 +1,7 @@
 package org.nurma.aqyndar.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -75,6 +76,7 @@ public class JwtProvider {
                     .build()
                     .parseSignedClaims(token);
             return true;
+        } catch (ExpiredJwtException ignored) {
         } catch (JwtException jwtException) {
             log.info("Cannot parse jwt: {}", jwtException.getMessage());
         } catch (Exception e) {

@@ -38,6 +38,8 @@ public class AuthorService {
         }
 
         Author author = authorOptional.get();
+        int count = getAuthorPoemsCount(id);
+        author.setPoemsCount(count);
 
         return EntityToDTOMapper.mapAuthorToGetAuthorResponse(author);
     }
@@ -50,6 +52,8 @@ public class AuthorService {
         author.setUser(user);
 
         Author savedAuthor = authorRepository.save(author);
+        int count = getAuthorPoemsCount(savedAuthor.getId());
+        author.setPoemsCount(count);
 
         return EntityToDTOMapper.mapAuthorToGetAuthorResponse(savedAuthor);
     }
@@ -69,6 +73,8 @@ public class AuthorService {
         }
 
         Author savedAuthor = authorRepository.save(author);
+        int count = getAuthorPoemsCount(id);
+        author.setPoemsCount(count);
 
         return EntityToDTOMapper.mapAuthorToGetAuthorResponse(savedAuthor);
     }
@@ -97,10 +103,16 @@ public class AuthorService {
         List<GetAuthorResponse> getAuthorResponses = new ArrayList<>();
 
         for (Author author : authors) {
+            int count = getAuthorPoemsCount(author.getId());
+            author.setPoemsCount(count);
             GetAuthorResponse getAuthorResponse = EntityToDTOMapper.mapAuthorToGetAuthorResponse(author);
             getAuthorResponses.add(getAuthorResponse);
         }
 
         return getAuthorResponses;
+    }
+
+    private int getAuthorPoemsCount(final int id) {
+        return authorRepository.countPoemsByAuthorId(id);
     }
 }

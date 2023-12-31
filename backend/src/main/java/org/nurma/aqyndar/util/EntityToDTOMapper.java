@@ -22,6 +22,7 @@ public class EntityToDTOMapper {
         getAuthorResponse.setId(author.getId());
         getAuthorResponse.setFullName(author.getFullName());
         getAuthorResponse.setUserId(author.getUser().getId());
+        getAuthorResponse.setPoemsCount(author.getPoemsCount());
         return getAuthorResponse;
     }
 
@@ -37,11 +38,14 @@ public class EntityToDTOMapper {
     }
 
     public static GetPoemResponse mapPoemToGetPoemResponse(final Poem poem) {
+        Author author = poem.getAuthor();
+
         GetPoemResponse getPoemResponse = new GetPoemResponse();
         getPoemResponse.setId(poem.getId());
         getPoemResponse.setTitle(poem.getTitle());
         getPoemResponse.setContent(poem.getContent());
         getPoemResponse.setAuthorId(poem.getAuthor().getId());
+        getPoemResponse.setAuthorName(author.getFullName());
 
         List<GetAnnotationResponse> getAnnotationResponses = new ArrayList<>();
 

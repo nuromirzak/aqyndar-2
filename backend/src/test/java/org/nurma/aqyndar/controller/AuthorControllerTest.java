@@ -116,7 +116,35 @@ class AuthorControllerTest extends AbstractController {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(authorId))
                 .andExpect(jsonPath("$.fullName").value(AUTHOR_FULL_NAME))
-                .andExpect(jsonPath("$.userId").isNotEmpty());
+                .andExpect(jsonPath("$.userId").isNotEmpty())
+                .andExpect(jsonPath("$.poemsCount").value(0));
+    }
+
+    @Test
+    void createPoemsWithAuthor() throws Exception {
+        ResultActions resultActions = createAuthor(new CreateAuthorRequest(AUTHOR_FULL_NAME), token);
+
+        GetAuthorResponse getAuthorResponse = fromJson(resultActions, GetAuthorResponse.class);
+
+        int authorId = getAuthorResponse.getId();
+
+        for (int i = 0; i < 3; i++) {
+            createPoem(new CreatePoemRequest(POEM_TITLE, POEM_CONTENT, authorId), token)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").isNotEmpty())
+                    .andExpect(jsonPath("$.title").value(POEM_TITLE))
+                    .andExpect(jsonPath("$.content").value(POEM_CONTENT))
+                    .andExpect(jsonPath("$.authorId").value(authorId));
+        }
+
+        Thread.sleep(1000);
+
+        getAuthor(authorId)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(authorId))
+                .andExpect(jsonPath("$.fullName").value(AUTHOR_FULL_NAME))
+                .andExpect(jsonPath("$.userId").isNotEmpty())
+                .andExpect(jsonPath("$.poemsCount").value(3));
     }
 
     @Test
@@ -134,7 +162,8 @@ class AuthorControllerTest extends AbstractController {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.fullName").value(AUTHOR_FULL_NAME))
-                .andExpect(jsonPath("$.userId").isNotEmpty());
+                .andExpect(jsonPath("$.userId").isNotEmpty())
+                .andExpect(jsonPath("$.poemsCount").value(0));
     }
 
     @Test

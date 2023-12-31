@@ -14,6 +14,7 @@ public class GetPoemResponse {
     private String title;
     private String content;
     private int authorId;
+    private String authorName;
     private List<GetAnnotationResponse> annotations;
     private int userId;
     private Integer schoolGrade;

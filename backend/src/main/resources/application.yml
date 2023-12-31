@@ -26,3 +26,6 @@ jwt:
 logging:
   file:
     path: logs
+
+cors:
+  allowedOrigins: ${CORS_ALLOWED_ORIGINS}.split(',')

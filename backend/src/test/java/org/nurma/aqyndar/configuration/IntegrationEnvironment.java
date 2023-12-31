@@ -8,6 +8,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.List;
 
 abstract public class IntegrationEnvironment {
     private static final String IMAGE_NAME = "postgres:15";
@@ -38,5 +39,7 @@ abstract public class IntegrationEnvironment {
 
         registry.add("jwt.secret.access", GenerateKeys::generateKey);
         registry.add("jwt.secret.refresh", GenerateKeys::generateKey);
+
+        registry.add("cors.allowedOrigins", () -> List.of("http://localhost:5173"));
     }
 }

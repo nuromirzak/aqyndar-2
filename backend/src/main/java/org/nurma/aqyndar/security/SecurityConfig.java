@@ -26,7 +26,7 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a -> a
                         .requestMatchers(HttpMethod.GET, "/favicon.ico").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/profile/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/profile/{id}", "/profile/{id}/likes").permitAll()
                         .requestMatchers(HttpMethod.GET, "/reaction/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/author/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/poem/**").permitAll()
@@ -35,6 +35,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configure(http))
                 .build();
     }
 
