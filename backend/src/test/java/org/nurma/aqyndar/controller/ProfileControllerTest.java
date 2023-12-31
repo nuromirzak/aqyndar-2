@@ -1,6 +1,7 @@
 package org.nurma.aqyndar.controller;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.nurma.aqyndar.configuration.TestDataFactory;
 import org.nurma.aqyndar.constant.ExceptionTitle;
@@ -94,6 +95,16 @@ class ProfileControllerTest extends TestDataFactory {
         getCurrentUser(token)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value(EMAIL));
+    }
+
+    @Test
+    @Disabled("Implement in the future")
+    void who_with_deleted_user() throws Exception {
+        deleteAccount(token);
+
+        getCurrentUser(token)
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
     }
 
     @Test

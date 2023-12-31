@@ -19,4 +19,8 @@ public class UserService {
     public void save(final User user) {
         userRepository.save(user);
     }
+
+    public void delete(final User user) {
+        userRepository.delete(user);
+    }
 }

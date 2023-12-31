@@ -1,11 +1,14 @@
 package org.nurma.aqyndar.controller;
 
+import com.github.javafaker.Faker;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.nurma.aqyndar.configuration.AbstractController;
 import org.nurma.aqyndar.constant.ExceptionTitle;
+import org.nurma.aqyndar.dto.request.CreateAuthorRequest;
 import org.nurma.aqyndar.dto.request.RefreshRequest;
 import org.nurma.aqyndar.dto.request.SigninRequest;
 import org.nurma.aqyndar.dto.request.SignupRequest;
@@ -77,7 +80,7 @@ class AuthControllerTest extends AbstractController {
 
     @Test
     void signin_Success() throws Exception {
-        SignupRequest signupRequest = new SignupRequest(EMAIL, PASSWORD, PASSWORD);
+        SignupRequest signupRequest = new SignupRequest(EMAIL, FIRST_NAME, PASSWORD);
         signup_Success(signupRequest);
 
         signin(new SigninRequest(EMAIL, PASSWORD))
@@ -88,7 +91,7 @@ class AuthControllerTest extends AbstractController {
 
     @Test
     void signin_Fail() throws Exception {
-        SignupRequest signupRequest = new SignupRequest(EMAIL, PASSWORD, PASSWORD);
+        SignupRequest signupRequest = new SignupRequest(EMAIL, FIRST_NAME, PASSWORD);
         signup_Success(signupRequest);
 
         signin(new SigninRequest(EMAIL, "wrongpassword"))
@@ -105,7 +108,7 @@ class AuthControllerTest extends AbstractController {
 
     @Test
     void refresh_success() throws Exception {
-        SignupRequest signupRequest = new SignupRequest(EMAIL, PASSWORD, PASSWORD);
+        SignupRequest signupRequest = new SignupRequest(EMAIL, FIRST_NAME, PASSWORD);
         signup_Success(signupRequest);
 
         JwtResponse jwtResponse = fromJson(
@@ -128,5 +131,74 @@ class AuthControllerTest extends AbstractController {
         refresh(refreshRequest)
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
+    }
+
+    @Test
+    void deleteExistingAccount() throws Exception {
+        SignupRequest signupRequest = new SignupRequest(EMAIL, FIRST_NAME, PASSWORD);
+        signup_Success(signupRequest);
+
+        String token = fromJson(
+                signin(new SigninRequest(EMAIL, PASSWORD)),
+                JwtResponse.class
+        ).getAccessToken();
+
+        deleteAccount(token)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is("success")));
+    }
+
+    @Test
+    void deleteNonExistingAccount() throws Exception {
+        deleteAccount("wrongtoken")
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void deleteDeletedAccount() throws Exception {
+        SignupRequest signupRequest = new SignupRequest(EMAIL, FIRST_NAME, PASSWORD);
+        signup_Success(signupRequest);
+
+        String token = fromJson(
+                signin(new SigninRequest(EMAIL, PASSWORD)),
+                JwtResponse.class
+        ).getAccessToken();
+
+        deleteAccount(token)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is("success")));
+
+        deleteAccount(token)
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
+    }
+
+    @Test
+    @Disabled
+    void deleteAccountWithAuthors() throws Exception {
+        SignupRequest signupRequest = new SignupRequest(EMAIL, FIRST_NAME, PASSWORD);
+        signup_Success(signupRequest);
+
+        String token = fromJson(
+                signin(new SigninRequest(EMAIL, PASSWORD)),
+                JwtResponse.class
+        ).getAccessToken();
+
+        Faker faker = new Faker();
+
+        for (int i = 0; i < 3; i++) {
+            CreateAuthorRequest createAuthorRequest = new CreateAuthorRequest(
+                    faker.name().firstName()
+            );
+            createAuthor(createAuthorRequest, token)
+                    .andExpect(status().isOk());
+        }
+
+        getAuthors(null, null, null)
+                .andExpect(status().isOk());
+
+        deleteAccount(token)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.VALIDATION)));
     }
 }

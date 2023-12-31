@@ -92,4 +92,9 @@ public class AuthService {
         signupResponse.setEmail(user.getEmail());
         return signupResponse;
     }
+
+    public void deleteAccount() {
+        final User user = getCurrentUserEntity();
+        userService.delete(user);
+    }
 }

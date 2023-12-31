@@ -228,4 +228,8 @@ public class AbstractController extends IntegrationEnvironment {
     protected ResultActions favicon() throws Exception {
         return performGet("/favicon.ico");
     }
+
+    protected ResultActions deleteAccount(String token) throws Exception {
+        return performDeleteWithToken("/deleteAccount", token);
+    }
 }
