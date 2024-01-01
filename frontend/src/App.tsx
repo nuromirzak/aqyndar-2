@@ -8,7 +8,7 @@ import {
     poemsLoader,
     profileLoader
 } from "./router/loaders.ts";
-import {loginAction, registerAction} from "./router/actions.ts";
+import {createAuthorAction, createPoemAction, loginAction, registerAction} from "./router/actions.ts";
 import {UserContext} from "./contexts/UserContext.tsx";
 import {useContext} from "react";
 import AuthorsPage from "./pages/AuthorsPage.tsx";
@@ -22,6 +22,8 @@ import ProfilePage from "./pages/ProfilePage.tsx";
 import LeaderboardPage from "./pages/LeaderboardPage.tsx";
 import AuthorPage from "./pages/AuthorPage.tsx";
 import NotFoundPage from "./pages/NotFoundPage.tsx";
+import CreateAuthorPage from "./pages/CreateAuthorPage.tsx";
+import CreatePoemPage from "./pages/CreatePoemPage.tsx";
 
 
 export default function App() {
@@ -34,6 +36,7 @@ export default function App() {
                 <Route path="poems">
                     <Route index element={<PoemsPage/>} loader={poemsLoader}/>
                     <Route path=":id" element={<PoemPage/>} loader={poemLoader}/>
+                    <Route path="create" element={<CreatePoemPage/>} action={createPoemAction} loader={authorsLoader}/>
                 </Route>
                 <Route path="login" element={<LoginPage/>} action={loginAction({setUser})}/>
                 <Route path="register" element={<RegisterPage/>} action={registerAction}/>
@@ -42,6 +45,7 @@ export default function App() {
                 <Route path="authors">
                     <Route index element={<AuthorsPage/>} loader={authorsLoader}/>
                     <Route path=":id" element={<AuthorPage/>} loader={authorLoader}/>
+                    <Route path="create" element={<CreateAuthorPage/>} action={createAuthorAction}/>
                 </Route>
 
                 <Route path="*" element={<NotFoundPage/>}/>

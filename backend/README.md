@@ -14,3 +14,6 @@
     - [x] Include points in user data.
 - Testing
     - [ ] Create class for populating database with test data.
+    - [ ] Add tests with blank not-null fields.
+- Auth
+    - [ ] Review status codes for all endpoints (401 and 403)

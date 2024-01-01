@@ -10,3 +10,8 @@ TODO:
 - [ ] Add a footer
 - [ ] Add poems list for the author page
 - [ ] Add recent 5 poems and authors and annotations added by the user on the profile page
+- [ ] Correct columns in bootstrap grid
+- [ ] Add Searchable Dropdown for authors in the poem form
+- [ ] Clear context when clearing localstorage
+- [ ] Find a bug of clearing localstorage
+- [ ] Implement reactions for poems and annotations

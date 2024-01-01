@@ -1,6 +1,7 @@
 package org.nurma.aqyndar.dto.request;
 
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,12 +13,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreatePoemRequest {
-    @NotEmpty
+    @NotBlank
     private String title;
-    @NotEmpty
+    @NotBlank
     private String content;
-    @NotEmpty
-    private int authorId;
+    @NotNull
+    private Integer authorId;
 
     public CreatePoemRequest(final String title, final String content, final int authorId) {
         this.title = title;

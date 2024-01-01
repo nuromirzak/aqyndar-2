@@ -8,4 +8,6 @@ import org.springframework.data.repository.query.Param;
 public interface AuthorRepository extends JpaRepository<Author, Integer> {
     @Query("SELECT COUNT(p) FROM Poem p WHERE p.author.id = :authorId")
     int countPoemsByAuthorId(@Param("authorId") int authorId);
+
+    boolean existsByFullName(String firstName);
 }

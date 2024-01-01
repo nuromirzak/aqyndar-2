@@ -15,7 +15,7 @@ export interface CreatePoemRequest {
     authorId: number;
     schoolGrade?: number;
     complexity?: number;
-    topics: string[];
+    topics?: string[];
 }
 
 export interface PatchAnnotationRequest {

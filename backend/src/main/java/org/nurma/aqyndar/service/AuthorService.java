@@ -26,6 +26,7 @@ import java.util.Optional;
 public class AuthorService {
     private static final String AUTHOR_NOT_FOUND = "Author with id %s not found";
     private static final String AUTHOR_HAVE_POEM = "Author with id %s have poem";
+    private static final String AUTHOR_WITH_FULL_NAME_EXISTS = "Author with full name %s already exists";
     private final AuthorRepository authorRepository;
     private final PoemRepository poemRepository;
     private final AuthService authService;
@@ -45,6 +46,10 @@ public class AuthorService {
     }
 
     public GetAuthorResponse createAuthor(final CreateAuthorRequest request) {
+        if (authorRepository.existsByFullName(request.getFullName())) {
+            throw new ValidationException(AUTHOR_WITH_FULL_NAME_EXISTS.formatted(request.getFullName()));
+        }
+
         Author author = new Author();
         author.setFullName(request.getFullName());
 

@@ -235,6 +235,17 @@ class PoemControllerTest extends AbstractController {
     }
 
     @Test
+    void createPoemWithEmptyFields() throws Exception {
+        createPoem(new CreatePoemRequest(POEM_TITLE, "", authorId), token)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.VALIDATION)));
+
+        createPoem(new CreatePoemRequest("", POEM_CONTENT, authorId), token)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.VALIDATION)));
+    }
+
+    @Test
     void createPoemWithToken() throws Exception {
         final int grade = 10;
         final int complexity = 6;

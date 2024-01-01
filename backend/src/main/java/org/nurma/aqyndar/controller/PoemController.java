@@ -1,5 +1,6 @@
 package org.nurma.aqyndar.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.nurma.aqyndar.dto.request.CreatePoemRequest;
 import org.nurma.aqyndar.dto.request.PatchPoemRequest;
@@ -41,7 +42,7 @@ public class PoemController {
     }
 
     @PostMapping
-    public GetPoemResponse createPoem(@RequestBody final CreatePoemRequest request) {
+    public GetPoemResponse createPoem(@Valid @RequestBody final CreatePoemRequest request) {
         return poemService.createPoem(request);
     }
 
