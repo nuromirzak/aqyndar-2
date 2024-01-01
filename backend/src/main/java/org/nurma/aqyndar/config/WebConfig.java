@@ -1,4 +1,4 @@
-package org.nurma.aqyndar.security;
+package org.nurma.aqyndar.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
