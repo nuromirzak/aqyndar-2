@@ -5,6 +5,8 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -33,9 +35,25 @@ abstract public class IntegrationEnvironment {
 
     @DynamicPropertySource
     static void registerPgProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", POSTGRE_SQL_CONTAINER::getJdbcUrl);
-        registry.add("spring.datasource.username", POSTGRE_SQL_CONTAINER::getUsername);
-        registry.add("spring.datasource.password", POSTGRE_SQL_CONTAINER::getPassword);
+        String jdbcUrl = POSTGRE_SQL_CONTAINER.getJdbcUrl();
+        String username = POSTGRE_SQL_CONTAINER.getUsername();
+        String password = POSTGRE_SQL_CONTAINER.getPassword();
+
+        try {
+            URI uri = new URI(jdbcUrl.replace("jdbc:postgresql://", "https://"));
+            String host = uri.getHost();
+            int port = uri.getPort();
+            String dbName = uri.getPath().replaceFirst("/", "");
+
+            registry.add("DATABASE_HOST", () -> host);
+            registry.add("DATABASE_PORT", () -> port);
+            registry.add("DATABASE_NAME", () -> dbName);
+            registry.add("DATABASE_USERNAME", () -> username);
+            registry.add("DATABASE_PASSWORD", () -> password);
+
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Failed to parse JDBC URL", e);
+        }
 
         registry.add("jwt.secret.access", GenerateKeys::generateKey);
         registry.add("jwt.secret.refresh", GenerateKeys::generateKey);
