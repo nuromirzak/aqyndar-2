@@ -26,9 +26,26 @@ export async function authorsLoader() {
     }
 }
 
-// @ts-expect-error(TODO)
-    export async function poemLoader({params}): Promise<PoemLoaderResponse | null> {
-    const {id} = params;
+interface CustomLoaderParams {
+    [key: string]: string | undefined;
+}
+
+function getNumericParam(params: CustomLoaderParams, key: string): number | undefined {
+    const value = params[key];
+    const numberValue = Number(value);
+    return isNaN(numberValue) ? undefined : numberValue;
+}
+
+interface LoaderArgs {
+    params: CustomLoaderParams;
+}
+
+export async function poemLoader({params}: LoaderArgs): Promise<PoemLoaderResponse | null> {
+    const id = getNumericParam(params, 'id');
+
+    if (id === undefined) {
+        return null;
+    }
 
     let poem, author;
 
@@ -43,9 +60,12 @@ export async function authorsLoader() {
     }
 }
 
-// @ts-expect-error(TODO)
-export async function authorLoader({params}): Promise<GetAuthorResponse | null> {
-    const {id} = params;
+export async function authorLoader({params}: LoaderArgs): Promise<GetAuthorResponse | null> {
+    const id = getNumericParam(params, 'id');
+
+    if (id === undefined) {
+        return null;
+    }
 
     let author;
 
@@ -59,26 +79,11 @@ export async function authorLoader({params}): Promise<GetAuthorResponse | null> 
 }
 
 export async function profileLoader(): Promise<GetWhoResponse | null> {
-    console.log(`profileLoader`);
-    let response;
-    try {
-        response = await profileService.getCurrentUser();
-        console.log(`profileLoader`, response);
-        return response;
-    } catch (e) {
-        console.log('profileLoader', e);
-        return null;
-    }
+    return await profileService.getCurrentUser();
 }
 
 export async function leaderboardLoader(): Promise<LeaderboardLoaderResponse> {
-    let poems, users;
-    try {
-        poems = await reactionService.getTopEntities(TopEntity.POEM);
-        users = await reactionService.getTopEntities(TopEntity.USER);
-        return {poems, users};
-    } catch (e) {
-        console.log(e);
-        throw e;
-    }
+    const poems = await reactionService.getTopEntities(TopEntity.POEM);
+    const users = await reactionService.getTopEntities(TopEntity.USER);
+    return {poems, users};
 }

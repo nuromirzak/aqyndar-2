@@ -1,8 +1,10 @@
-import axios from 'axios';
+import axios, {AxiosError} from 'axios';
 import {authService} from "./services/authService.ts";
 
+const BASE_URL = typeof import.meta.env.VITE_API_BASE_URL === 'string' ? import.meta.env.VITE_API_BASE_URL : '';
+
 const axiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL,
+    baseURL: BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -18,15 +20,20 @@ axiosInstance.interceptors.request.use(config => {
     return Promise.reject(error);
 });
 
+const retryMap = new Map<string, boolean>();
 
-axiosInstance.interceptors.response.use(response => response, async (error) => {
+axiosInstance.interceptors.response.use(response => response, async (error: AxiosError) => {
     console.error('Error from axios interceptor', error);
     const originalRequest = error.config;
+    if (originalRequest === undefined) {
+        return Promise.reject(error);
+    }
     const FORBIDDEN = 403;
-
-    if (error.response?.status === FORBIDDEN && !originalRequest._retry) {
-        console.log('Forbidden, trying to refresh token');
-        originalRequest._retry = true;
+    const url = originalRequest.url || '';
+    const method = originalRequest.method || '';
+    const requestKey = `${method}:${url}`;
+    if (error.response?.status === FORBIDDEN && !retryMap.get(requestKey)) {
+        retryMap.set(requestKey, true);
         try {
             const storedRefreshToken = localStorage.getItem('refreshToken');
 
@@ -44,6 +51,7 @@ axiosInstance.interceptors.response.use(response => response, async (error) => {
             console.error('Unable to refresh token', refreshError);
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
+            retryMap.delete(requestKey);
             return Promise.reject(refreshError);
         }
     }

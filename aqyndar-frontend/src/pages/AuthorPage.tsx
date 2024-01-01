@@ -9,7 +9,7 @@ export default function AuthorPage() {
         return <p>Author not found.</p>;
     }
 
-    const author = loaderData as GetAuthorResponse;
+    const author = loaderData;
     const imageUrl = `https://via.placeholder.com/500?text=${encodeURIComponent(author.fullName)}`;
 
     return (
