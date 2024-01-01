@@ -45,6 +45,10 @@ const isTokenExpired = (token?: string): boolean => {
     }
 };
 
+const hasToken = (): boolean => {
+    return localStorage.getItem("accessToken") !== null;
+}
+
 const getUserFromLocalStorage = (): AccessTokenPayload | null => {
     const token = localStorage.getItem("accessToken");
     if (token === null) {
@@ -53,4 +57,4 @@ const getUserFromLocalStorage = (): AccessTokenPayload | null => {
     return getUserFromToken(token);
 }
 
-export {isTokenExpired, getUserFromLocalStorage};
+export {isTokenExpired, getUserFromLocalStorage, hasToken};

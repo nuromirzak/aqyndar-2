@@ -2,14 +2,14 @@ import {NavLink} from 'react-router-dom';
 import {useContext, useEffect} from "react";
 import {profileService} from "../api/services/profileService.ts";
 import {UserContext} from "../contexts/UserContext.tsx";
-import {getUserFromLocalStorage, isTokenExpired} from "../utils/tokenUtils.ts";
+import {getUserFromLocalStorage, hasToken, isTokenExpired} from "../utils/tokenUtils.ts";
 
 export default function Navbar() {
     const {user, setUser} = useContext(UserContext);
 
     useEffect(() => {
         if (!user) {
-            if (isTokenExpired()) {
+            if (hasToken() && isTokenExpired()) {
                 profileService.getCurrentUser()
                     .catch(e => {
                         console.error(e);
