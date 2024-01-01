@@ -9,6 +9,9 @@ export interface UserContextProps {
 const UserContext = createContext<UserContextProps>({
     user: null,
     setUser: () => {
+        // This is a no-op function.
+        // It's here to satisfy TypeScript and ESLint,
+        // but in practice, it will be overridden by the actual implementation in UserProvider.
     },
 });
 

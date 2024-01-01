@@ -12,8 +12,8 @@ const processError = (e: unknown): IAlertInfo => {
     let errorDetail = "An error occurred";
 
     if (axios.isAxiosError<CustomErrorResponse>(e)) {
-        errorTitle = e.response?.data.title || e.name;
-        errorDetail = e.response?.data.detail || e.message;
+        errorTitle = e.response?.data.title ?? e.name;
+        errorDetail = e.response?.data.detail ?? e.message;
     } else if (e instanceof Error) {
         errorTitle = e.name;
         errorDetail = e.message;
@@ -30,11 +30,11 @@ const processError = (e: unknown): IAlertInfo => {
 
 const extractFormData = async (request: Request, fields: string[]): Promise<Record<string, string>> => {
     const data = await request.formData();
-    return fields.reduce((acc, field) => {
+    return fields.reduce<Record<string, string>>((acc, field) => {
         const value = data.get(field);
         acc[field] = typeof value === 'string' ? value : "";
         return acc;
-    }, {} as Record<string, string>);
+    }, {});
 };
 
 export function loginAction({setUser}: LoginActionProps): ({request}: { request: Request }) => Promise<IAlertInfo> {

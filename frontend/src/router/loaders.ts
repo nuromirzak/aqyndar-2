@@ -26,9 +26,7 @@ export async function authorsLoader() {
     }
 }
 
-interface CustomLoaderParams {
-    [key: string]: string | undefined;
-}
+type CustomLoaderParams = Record<string, string | undefined>;
 
 function getNumericParam(params: CustomLoaderParams, key: string): number | undefined {
     const value = params[key];

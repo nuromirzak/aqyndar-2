@@ -5,19 +5,21 @@ import {useEffect, useState} from "react";
 
 export default function LoginPage() {
     const navigate = useNavigate();
-    const data = useActionData() as IAlertInfo;
+    const data = useActionData() as IAlertInfo | undefined;
     const [loginSuccessful, setLoginSuccessful] = useState(
         localStorage.getItem("accessToken") !== null
     );
 
     useEffect(() => {
-        if ((data && !data.error) || loginSuccessful) {
+        if ((data && !data.error) ?? loginSuccessful) {
             setLoginSuccessful(true);
             const timer = setTimeout(() => {
                 navigate('/');
             }, 2500);
 
-            return () => clearTimeout(timer);
+            return () => {
+                clearTimeout(timer);
+            };
         }
     }, [data, loginSuccessful, navigate]);
 

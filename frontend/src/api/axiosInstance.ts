@@ -13,7 +13,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(config => {
     const accessToken = localStorage.getItem('accessToken');
     if (accessToken) {
-        config.headers['Authorization'] = `Bearer ${accessToken}`;
+        config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
 }, error => {
@@ -29,8 +29,8 @@ axiosInstance.interceptors.response.use(response => response, async (error: Axio
         return Promise.reject(error);
     }
     const FORBIDDEN = 403;
-    const url = originalRequest.url || '';
-    const method = originalRequest.method || '';
+    const url = originalRequest.url ?? '';
+    const method = originalRequest.method ?? '';
     const requestKey = `${method}:${url}`;
     if (error.response?.status === FORBIDDEN && !retryMap.get(requestKey)) {
         retryMap.set(requestKey, true);

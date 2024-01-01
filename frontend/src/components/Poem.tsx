@@ -22,7 +22,7 @@ function Poem({poem, author}: PoemProps) {
                     <h3 className="card-title">{poem.title}</h3>
                     <h6 className="card-subtitle mb-2 text-muted">By {author.fullName}</h6>
                     {
-                        (poem.schoolGrade || poem.complexity) && (
+                        (poem.schoolGrade ?? poem.complexity) && (
                             <div className="d-flex gap-3 mb-2">
                                 {poem.schoolGrade && (
                                     <div className="badge bg-info text-dark">School Grade: {poem.schoolGrade}</div>
@@ -33,7 +33,7 @@ function Poem({poem, author}: PoemProps) {
                             </div>
                         )
                     }
-                    {poem.topics && poem.topics.length > 0 && (
+                    {poem.topics.length > 0 && (
                         <div className="mb-2">
                             <strong>Topics:</strong> {poem.topics.join(', ')}
                         </div>

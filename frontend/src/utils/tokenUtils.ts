@@ -33,7 +33,7 @@ const getUserFromToken = (token: string): AccessTokenPayload | null => {
 };
 
 const isTokenExpired = (token?: string): boolean => {
-    token = token || localStorage.getItem("accessToken") || "";
+    token = token ?? localStorage.getItem("accessToken") ?? "";
     try {
         const decoded = jwtDecode(token);
         const currentUnixTimestamp = Math.floor(Date.now() / 1000);

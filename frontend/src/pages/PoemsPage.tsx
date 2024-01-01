@@ -20,7 +20,7 @@ export default function PoemsPage() {
                                 <Link to={poem.id.toString()} className="card-link">Read More</Link>
                             </div>
                             <div className="card-footer">
-                                <small className="text-muted">Complexity: {poem.complexity || 'N/A'}</small>
+                                <small className="text-muted">Complexity: {poem.complexity ?? 'N/A'}</small>
                             </div>
                         </div>
                     </div>

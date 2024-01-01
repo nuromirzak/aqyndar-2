@@ -11,7 +11,9 @@ export default function Navbar() {
         if (!user) {
             if (isTokenExpired()) {
                 profileService.getCurrentUser()
-                    .catch(e => console.error(e));
+                    .catch(e => {
+                        console.error(e);
+                    });
             }
             setUser(getUserFromLocalStorage());
         }
