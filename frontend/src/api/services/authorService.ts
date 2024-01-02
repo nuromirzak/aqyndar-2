@@ -1,8 +1,9 @@
 import axiosInstance from '../axiosInstance.ts';
-import {GetAuthorResponse, CreateAuthorRequest, PatchAuthorRequest, DeleteResponse, Pageable} from '../../types';
+import {CreateAuthorRequest, DeleteResponse, GetAuthorResponse, Page, Pageable, PatchAuthorRequest} from '../../types';
 
-const getAllAuthors = async (pageable?: Pageable): Promise<GetAuthorResponse[]> => { // Replace 'any' with your pageable type
-    const response = await axiosInstance.get<GetAuthorResponse[]>('/author', { params: pageable });
+const getAllAuthors = async (pageable?: Pageable): Promise<Page<GetAuthorResponse>> => {
+    const response = await axiosInstance
+        .get<Page<GetAuthorResponse>>('/author', {params: pageable});
     return response.data;
 };
 

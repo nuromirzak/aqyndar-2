@@ -20,7 +20,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -163,17 +162,9 @@ public class PoemService {
         return new DeleteResponse();
     }
 
-    public List<GetPoemResponse> getAllPoems(final Pageable pageable) {
+    public Page<GetPoemResponse> getAllPoems(final Pageable pageable) {
         Page<Poem> poems = poemRepository.findAll(pageable);
-
-        List<GetPoemResponse> getPoemResponses = new ArrayList<>();
-
-        for (Poem poem : poems) {
-            GetPoemResponse getPoemResponse = EntityToDTOMapper.mapPoemToGetPoemResponse(poem);
-            getPoemResponses.add(getPoemResponse);
-        }
-
-        return getPoemResponses;
+        return poems.map(EntityToDTOMapper::mapPoemToGetPoemResponse);
     }
 
     public List<GetTopicResponse> getAllTopics() {

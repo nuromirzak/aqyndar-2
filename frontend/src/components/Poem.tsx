@@ -1,4 +1,5 @@
-import {GetAuthorResponse, GetPoemResponse} from "../types";
+import {GetAnnotationResponse, GetAuthorResponse, GetPoemResponse} from "../types";
+import {useRef} from "react";
 
 interface PoemProps {
     poem: GetPoemResponse | undefined;
@@ -6,14 +7,60 @@ interface PoemProps {
 }
 
 function Poem({poem, author}: PoemProps) {
+    const poemTextNode = useRef<HTMLPreElement>(null);
+
     if (!poem || !author) {
         console.log('poem or author is undefined');
         return <p>Poem or author not found.</p>;
     }
 
-    const lines = poem.content.split('\n').map((line, index) => (
-        <p key={index}>{line}</p>
-    ));
+    function createRanges(annotations: GetAnnotationResponse[]) {
+        if (!poemTextNode.current?.firstChild) {
+            console.log(poem);
+            console.log('poemTextNode.current or poemTextNode.current.firstChild is null');
+            return;
+        }
+
+        const ranges: Range[] = [], n: number = annotations.length;
+
+        for (let i = 0; i < n; i++) {
+            const annotation = annotations[i];
+            const range = document.createRange();
+            range.setStart(poemTextNode.current.firstChild, annotation.startRangeIndex);
+            range.setEnd(poemTextNode.current.firstChild, annotation.endRangeIndex);
+            ranges.push(range);
+        }
+
+        console.log(ranges);
+
+        function createHighlightSpan(annotation: GetAnnotationResponse) {
+            const span = document.createElement('span');
+            span.style.backgroundColor = 'gray';
+            span.style.cursor = 'pointer';
+            span.title = annotation.content;
+
+            span.addEventListener('mouseover', () => {
+                span.style.backgroundColor = 'yellow';
+            });
+
+            span.addEventListener('mouseout', () => {
+                span.style.backgroundColor = 'gray';
+            });
+
+            return span;
+        }
+
+        for (let i = 0; i < n; i++) {
+            const range = ranges[i];
+            const span = createHighlightSpan(annotations[i]);
+            range.surroundContents(span);
+        }
+
+    }
+
+    setTimeout(() => {
+        createRanges(poem.annotations);
+    }, 100);
 
     return (
         <div className="container mt-4">
@@ -38,7 +85,9 @@ function Poem({poem, author}: PoemProps) {
                             <strong>Topics:</strong> {poem.topics.join(', ')}
                         </div>
                     )}
-                    <div className="card-text">{lines}</div>
+                    <div className="card-text">
+                        <pre ref={poemTextNode}>{poem.content}</pre>
+                    </div>
                 </div>
             </div>
 
@@ -50,6 +99,7 @@ function Poem({poem, author}: PoemProps) {
                     {poem.annotations.map(annotation => (
                         <li key={annotation.id} className="list-group-item">
                             {annotation.content}
+                            <strong>[{annotation.startRangeIndex}:{annotation.endRangeIndex}]</strong>
                         </li>
                     ))}
                 </ul>

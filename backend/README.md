@@ -17,3 +17,5 @@
     - [ ] Add tests with blank not-null fields.
 - Auth
     - [ ] Review status codes for all endpoints (401 and 403)
+- Annotation
+    - [ ] Review annotation boundaries 

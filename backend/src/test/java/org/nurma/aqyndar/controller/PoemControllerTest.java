@@ -80,9 +80,9 @@ class PoemControllerTest extends AbstractController {
     void defaultPaginationLimit() throws Exception {
         getPoems(null, null, null)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(20))
-                .andExpect(jsonPath("$[0].title").value("Poem #1"))
-                .andExpect(jsonPath("$[19].title").value("Poem #20"));
+                .andExpect(jsonPath("$.content.length()").value(20))
+                .andExpect(jsonPath("$.content[0].title").value("Poem #1"))
+                .andExpect(jsonPath("$.content[19].title").value("Poem #20"));
     }
 
     @Test
@@ -92,9 +92,9 @@ class PoemControllerTest extends AbstractController {
 
         getPoems(page, size, null)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(size))
-                .andExpect(jsonPath("$[0].title").value("Poem #11"))
-                .andExpect(jsonPath("$[9].title").value("Poem #20"));
+                .andExpect(jsonPath("$.content.length()").value(size))
+                .andExpect(jsonPath("$.content[0].title").value("Poem #11"))
+                .andExpect(jsonPath("$.content[9].title").value("Poem #20"));
     }
 
     @Test
@@ -105,8 +105,8 @@ class PoemControllerTest extends AbstractController {
         String sort = "title,desc";
         getPoems(page, size, sort)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(size))
-                .andExpect(jsonPath("$[0].title").value("Poem #99"));
+                .andExpect(jsonPath("$.content.length()").value(size))
+                .andExpect(jsonPath("$.content[0].title").value("Poem #99"));
     }
 
     @Test
@@ -116,7 +116,7 @@ class PoemControllerTest extends AbstractController {
 
         getPoems(page, size, null)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
+                .andExpect(jsonPath("$.content.length()").value(0));
     }
 
     @Test
@@ -124,7 +124,7 @@ class PoemControllerTest extends AbstractController {
     void testInvalidPaginationParameters() throws Exception {
         getPoems(-1, -10, null)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
+                .andExpect(jsonPath("$.content.length()").value(0));
     }
 
     @Test

@@ -1,11 +1,12 @@
 import {Link, useLoaderData} from "react-router-dom";
-import {GetPoemResponse} from "../types";
+import {GetPoemResponse, Page} from "../types";
 import {useContext} from "react";
 import {UserContext} from "../contexts/UserContext.tsx";
+import Pagination from "../components/Pagination.tsx";
 
 export default function PoemsPage() {
     const {user} = useContext(UserContext);
-    const poems = useLoaderData() as GetPoemResponse[];
+    const poems = useLoaderData() as Page<GetPoemResponse>;
 
     return (
         <div className="container d-flex flex-column gap-3">
@@ -14,10 +15,10 @@ export default function PoemsPage() {
                 {user && <Link to="/poems/create" className="btn btn-primary">Create</Link>}
             </div>
             <div className="row">
-                {poems.map((poem) => (
+                {poems.content.map((poem) => (
                     <div key={poem.id} className="col-lg-3 col-md-4 col-sm-6 mb-3">
                         <div className="card h-100">
-                        <div className="card-body">
+                            <div className="card-body">
                                 <h5 className="card-title">{poem.title}</h5>
                                 <h6 className="card-subtitle mb-2 text-muted">By {poem.authorName}</h6>
                                 <p className="card-text">
@@ -32,6 +33,7 @@ export default function PoemsPage() {
                     </div>
                 ))}
             </div>
+            <Pagination page={poems}/>
         </div>
     )
 }

@@ -8,6 +8,7 @@ import org.nurma.aqyndar.dto.response.DeleteResponse;
 import org.nurma.aqyndar.dto.response.GetPoemResponse;
 import org.nurma.aqyndar.dto.response.GetTopicResponse;
 import org.nurma.aqyndar.service.PoemService;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +28,7 @@ public class PoemController {
     private final PoemService poemService;
 
     @GetMapping
-    public List<GetPoemResponse> getAllPoems(final Pageable pageable) {
+    public Page<GetPoemResponse> getAllPoems(final Pageable pageable) {
         return poemService.getAllPoems(pageable);
     }
 

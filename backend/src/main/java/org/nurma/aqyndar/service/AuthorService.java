@@ -17,8 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -102,19 +100,9 @@ public class AuthorService {
         return new DeleteResponse();
     }
 
-    public List<GetAuthorResponse> getAllAuthors(final Pageable pageable) {
+    public Page<GetAuthorResponse> getAllAuthors(final Pageable pageable) {
         Page<Author> authors = authorRepository.findAll(pageable);
-
-        List<GetAuthorResponse> getAuthorResponses = new ArrayList<>();
-
-        for (Author author : authors) {
-            int count = getAuthorPoemsCount(author.getId());
-            author.setPoemsCount(count);
-            GetAuthorResponse getAuthorResponse = EntityToDTOMapper.mapAuthorToGetAuthorResponse(author);
-            getAuthorResponses.add(getAuthorResponse);
-        }
-
-        return getAuthorResponses;
+        return authors.map(EntityToDTOMapper::mapAuthorToGetAuthorResponse);
     }
 
     private int getAuthorPoemsCount(final int id) {

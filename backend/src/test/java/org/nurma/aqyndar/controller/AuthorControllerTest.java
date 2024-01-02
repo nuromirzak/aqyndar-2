@@ -14,6 +14,7 @@ import org.nurma.aqyndar.dto.response.GetAuthorResponse;
 import org.nurma.aqyndar.dto.response.JwtResponse;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.result.JsonPathResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.Matchers.is;
@@ -57,9 +58,9 @@ class AuthorControllerTest extends AbstractController {
     void defaultPaginationLimit() throws Exception {
         getAuthors(null, null, null)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(20))
-                .andExpect(jsonPath("$[0].fullName").value("Author #1"))
-                .andExpect(jsonPath("$[19].fullName").value("Author #20"));
+                .andExpect(jsonPath("$.content.length()").value(20))
+                .andExpect(jsonPath("$.content[0].fullName").value("Author #1"))
+                .andExpect(jsonPath("$.content[19].fullName").value("Author #20"));
     }
 
     @Test
@@ -69,9 +70,9 @@ class AuthorControllerTest extends AbstractController {
 
         getAuthors(page, size, null)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(size))
-                .andExpect(jsonPath("$[0].fullName").value("Author #11"))
-                .andExpect(jsonPath("$[9].fullName").value("Author #20"));
+                .andExpect(jsonPath("$.content.length()").value(size))
+                .andExpect(jsonPath("$.content[0].fullName").value("Author #11"))
+                .andExpect(jsonPath("$.content[9].fullName").value("Author #20"));
     }
 
     @Test
@@ -82,8 +83,8 @@ class AuthorControllerTest extends AbstractController {
         String sort = "fullName,desc";
         getAuthors(page, size, sort)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(size))
-                .andExpect(jsonPath("$[0].fullName").value("Author #99"));
+                .andExpect(jsonPath("$.content.length()").value(size))
+                .andExpect(jsonPath("$.content[0].fullName").value("Author #99"));
     }
 
     @Test
@@ -93,7 +94,7 @@ class AuthorControllerTest extends AbstractController {
 
         getAuthors(page, size, null)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
+                .andExpect(jsonPath("$.content.length()").value(0));
     }
 
     @Test

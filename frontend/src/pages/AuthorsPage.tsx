@@ -1,12 +1,17 @@
 import {Link, useLoaderData} from "react-router-dom";
-import {GetAuthorResponse} from "../types";
+import {GetAuthorResponse, Page} from "../types";
 import {useContext} from "react";
 import {UserContext} from "../contexts/UserContext.tsx";
+import Pagination from "../components/Pagination.tsx";
 
 export default function AuthorsPage() {
     const {user} = useContext(UserContext);
-    const authors = useLoaderData() as GetAuthorResponse[];
-    const sortedAuthors = authors.sort((a, b) => b.poemsCount - a.poemsCount);
+    const authors = useLoaderData() as Page<GetAuthorResponse>;
+    const sortedAuthors = authors.content.sort(
+        function (a, b) {
+            return b.poemsCount - a.poemsCount;
+        }
+    );
 
     return (
         <div className="container d-flex flex-column gap-3">
@@ -22,6 +27,7 @@ export default function AuthorsPage() {
                     </li>
                 ))}
             </ul>
+            <Pagination page={authors}/>
         </div>
     );
 }

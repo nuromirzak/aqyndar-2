@@ -1,8 +1,17 @@
 import axiosInstance from '../axiosInstance.ts';
-import { Pageable, CreatePoemRequest, PatchPoemRequest, GetPoemResponse, DeleteResponse, GetTopicResponse } from '../../types';
+import {
+    CreatePoemRequest,
+    DeleteResponse,
+    GetPoemResponse,
+    GetTopicResponse,
+    Page,
+    Pageable,
+    PatchPoemRequest
+} from '../../types';
 
-const getAllPoems = async (pageable?: Pageable): Promise<GetPoemResponse[]> => {
-    const response = await axiosInstance.get<GetPoemResponse[]>('/poem', { params: pageable });
+const getAllPoems = async (pageable?: Pageable): Promise<Page<GetPoemResponse>> => {
+    const response = await axiosInstance
+        .get<Page<GetPoemResponse>>('/poem', {params: pageable});
     return response.data;
 };
 
