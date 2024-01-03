@@ -87,7 +87,8 @@ class ProfileControllerTest extends TestDataFactory {
     @Test
     void who_with_anonymous() throws Exception {
         getCurrentUser(null)
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
     }
 
     @Test

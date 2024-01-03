@@ -7,6 +7,7 @@
     - [x] Allow annotation of poems by character range, not by line.
     - [x] Add complexity level, topics list, and school grade to each poem.
     - [x] Track who added each poem and annotation.
+    - [ ] Allow poems and authors be edited by their creators.
 - Gamification
     - [x] Allow users to like poems and annotations.
     - [x] Allow to remove likes/dislikes

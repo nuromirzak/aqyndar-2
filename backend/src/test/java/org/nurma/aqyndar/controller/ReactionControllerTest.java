@@ -203,8 +203,8 @@ class ReactionControllerTest extends TestDataFactory {
                 new UpdateReactionRequest(ReactedEntity.POEM.name(), poemId, ReactionType.LIKE.getValue());
 
         updateReaction(updateReactionRequest, null)
-                .andExpect(status().isForbidden());
-//                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
     }
 
     @Test

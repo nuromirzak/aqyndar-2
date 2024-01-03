@@ -129,8 +129,8 @@ class AnnotationControllerTest extends AbstractController {
     @Test
     void createAnnotationWithoutToken() throws Exception {
         createAnnotation(new CreateAnnotationRequest(ANNOTATION, START_RANGE_INDEX, END_RANGE_INDEX, poemId), null)
-                .andExpect(status().isForbidden());
-//                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
     }
 
     @Test
@@ -222,8 +222,8 @@ class AnnotationControllerTest extends AbstractController {
         patchAnnotationRequest.setContent("I'm new content");
 
         updateAnnotation(annotationId, patchAnnotationRequest, null)
-                .andExpect(status().isForbidden());
-//                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
     }
 
     @Test
@@ -255,7 +255,7 @@ class AnnotationControllerTest extends AbstractController {
                 .getId();
 
         deleteAnnotation(annotationId, null)
-                .andExpect(status().isForbidden());
-//                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
     }
 }

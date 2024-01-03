@@ -14,7 +14,6 @@ import org.nurma.aqyndar.dto.response.GetAuthorResponse;
 import org.nurma.aqyndar.dto.response.JwtResponse;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.result.JsonPathResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.Matchers.is;
@@ -186,8 +185,8 @@ class AuthorControllerTest extends AbstractController {
     @Test
     void createAuthorWithoutToken() throws Exception {
         createAuthor(new CreateAuthorRequest(AUTHOR_FULL_NAME), null)
-                .andExpect(status().isForbidden());
-//                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
     }
 
     @Test
@@ -237,8 +236,8 @@ class AuthorControllerTest extends AbstractController {
         PatchAuthorRequest patchAuthorRequest = new PatchAuthorRequest("Pushkin");
 
         updateAuthor(authorId, patchAuthorRequest, null)
-                .andExpect(status().isForbidden());
-//                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
     }
 
     @Test
@@ -284,7 +283,7 @@ class AuthorControllerTest extends AbstractController {
                 .getId();
 
         deleteAuthor(authorId, null)
-                .andExpect(status().isForbidden());
-//                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
     }
 }

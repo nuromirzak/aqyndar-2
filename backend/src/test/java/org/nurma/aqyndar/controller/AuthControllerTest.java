@@ -151,7 +151,8 @@ class AuthControllerTest extends AbstractController {
     @Test
     void deleteNonExistingAccount() throws Exception {
         deleteAccount("wrongtoken")
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
     }
 
     @Test

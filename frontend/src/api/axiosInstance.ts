@@ -28,11 +28,14 @@ axiosInstance.interceptors.response.use(response => response, async (error: Axio
     if (originalRequest === undefined) {
         return Promise.reject(error);
     }
-    const FORBIDDEN = 403;
-    const url = originalRequest.url ?? '';
-    const method = originalRequest.method ?? '';
-    const requestKey = `${method}:${url}`;
-    if (error.response?.status === FORBIDDEN && !retryMap.get(requestKey)) {
+    const UNAUTHORIZED = 401;
+    const requestKey = JSON.stringify({
+        url: originalRequest.url,
+        method: originalRequest.method,
+        headers: originalRequest.headers,
+        baseURL: originalRequest.baseURL,
+    });
+    if (error.response?.status === UNAUTHORIZED && !retryMap.get(requestKey)) {
         retryMap.set(requestKey, true);
         try {
             const storedRefreshToken = localStorage.getItem('refreshToken');

@@ -378,8 +378,8 @@ class PoemControllerTest extends AbstractController {
     @Test
     void createPoemWithoutToken() throws Exception {
         createPoem(new CreatePoemRequest(POEM_TITLE, POEM_CONTENT, authorId), null)
-                .andExpect(status().isForbidden());
-//                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
     }
 
     @Test
@@ -586,8 +586,8 @@ class PoemControllerTest extends AbstractController {
                 .build();
 
         updatePoem(poemId, patchPoemRequest, null)
-                .andExpect(status().isForbidden());
-//                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
     }
 
     @Test
@@ -619,8 +619,8 @@ class PoemControllerTest extends AbstractController {
                 .getId();
 
         deletePoem(poemId, null)
-                .andExpect(status().isForbidden());
-//                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.AUTHENTICATION)));
     }
 
     @Test
