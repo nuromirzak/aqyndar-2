@@ -36,7 +36,7 @@ export default function App() {
                 <Route path="poems">
                     <Route index element={<PoemsPage/>} loader={poemsLoader}/>
                     <Route path=":id" element={<PoemPage/>} loader={poemLoader}/>
-                    <Route path="create" element={<CreatePoemPage/>} action={createPoemAction} loader={authorsLoader}/>
+                    <Route path="create" element={<CreatePoemPage/>} action={createPoemAction}/>
                 </Route>
                 <Route path="login" element={<LoginPage/>} action={loginAction({setUser})}/>
                 <Route path="register" element={<RegisterPage/>} action={registerAction}/>

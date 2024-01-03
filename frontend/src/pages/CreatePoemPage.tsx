@@ -1,14 +1,46 @@
-import {Form, useActionData, useLoaderData} from "react-router-dom";
+import {Form, useActionData} from "react-router-dom";
 import {GetAuthorResponse, IAlertInfo} from "../types";
 import StatusAlert from "../components/StatusAlert.tsx";
-import {useContext} from "react";
+import {useContext, useEffect, useState} from "react";
 import {UserContext} from "../contexts/UserContext.tsx";
 import './styles/CreatePoemPage.scss';
+import {authorService} from "../api/services/authorService.ts";
+import {useCombobox} from "downshift";
+import {searchService} from "../api/services/searchService.ts";
+import Search from "../components/Search.tsx";
 
 export default function CreatePoemPage() {
-    const authors = useLoaderData() as GetAuthorResponse[];
     const {user} = useContext(UserContext);
     const data = useActionData() as IAlertInfo | undefined;
+
+    const [items, setItems] = useState<GetAuthorResponse[]>([]);
+
+    useEffect(() => {
+        authorService.getAllAuthors().then((response) => {
+            setItems(response.content.slice(0, 5));
+        }).catch((error) => {
+            console.log(error);
+        });
+    }, []);
+
+
+    const combobox = useCombobox<GetAuthorResponse>({
+        onInputValueChange({inputValue}) {
+            const inputValueString = inputValue ?? '';
+
+            searchService.searchAuthors(inputValueString).then((response) => {
+                setItems(response);
+            }).catch((error) => {
+                console.log(error);
+            });
+        },
+        items,
+        itemToString(item) {
+            return item ? item.fullName : '';
+        },
+    })
+
+    console.log(import.meta.env.MODE);
 
     if (!user) {
         return (
@@ -32,14 +64,12 @@ export default function CreatePoemPage() {
                             <label htmlFor="content" className="form-label">Poem Content</label>
                             <textarea id="content" name="content" className="form-control" rows={4}></textarea>
                         </div>
-                        <div>
+                        <div className={import.meta.env.MODE === 'development' ? 'd-block' : 'd-none'}>
                             <label htmlFor="authorId" className="form-label">Select Author</label>
-                            <select id="authorId" name="authorId" className="form-select">
-                                {authors.map(author => (
-                                    <option key={author.id} value={author.id}>{author.fullName}</option>
-                                ))}
-                            </select>
+                            <input readOnly name="authorId" className="form-control"
+                                   value={combobox.selectedItem?.id ?? ''}/>
                         </div>
+                        <Search comboboxProps={combobox} authors={items}/>
                         <div>
                             <label htmlFor="schoolGrade" className="form-label">School Grade (optional)</label>
                             <input type="number" id="schoolGrade" name="schoolGrade" className="form-control"/>

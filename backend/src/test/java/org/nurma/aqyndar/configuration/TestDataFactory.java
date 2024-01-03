@@ -1,6 +1,7 @@
 package org.nurma.aqyndar.configuration;
 
 import com.github.javafaker.Faker;
+import org.nurma.aqyndar.dto.request.CreateAuthorRequest;
 import org.nurma.aqyndar.dto.request.SigninRequest;
 import org.nurma.aqyndar.dto.request.SignupRequest;
 import org.nurma.aqyndar.dto.request.UpdateReactionRequest;
@@ -16,7 +17,7 @@ public class TestDataFactory extends AbstractController {
 
     private final Faker faker = new Faker();
 
-    public void updateReactionWithRandomUser(UpdateReactionRequest updateReactionRequest) throws Exception {
+    protected void updateReactionWithRandomUser(UpdateReactionRequest updateReactionRequest) throws Exception {
         SignupRequest signupRequest = createRandomSignupRequest();
         signUp(signupRequest);
 
@@ -24,7 +25,7 @@ public class TestDataFactory extends AbstractController {
         updateReaction(updateReactionRequest, token);
     }
 
-    private SignupRequest createRandomSignupRequest() {
+    protected SignupRequest createRandomSignupRequest() {
         return new SignupRequest(
                 faker.internet().emailAddress(),
                 faker.name().firstName(),
@@ -32,7 +33,7 @@ public class TestDataFactory extends AbstractController {
         );
     }
 
-    private String authenticateAndGetToken(SignupRequest signupRequest) throws Exception {
+    protected String authenticateAndGetToken(SignupRequest signupRequest) throws Exception {
         SigninRequest signinRequest = new SigninRequest(
                 signupRequest.getEmail(),
                 signupRequest.getPassword()

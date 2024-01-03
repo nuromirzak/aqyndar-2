@@ -1,5 +1,6 @@
 package org.nurma.aqyndar.configuration;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.nurma.aqyndar.dto.request.CreateAnnotationRequest;
 import org.nurma.aqyndar.dto.request.CreateAuthorRequest;
@@ -18,6 +19,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -74,8 +78,14 @@ public class AbstractController extends IntegrationEnvironment {
     }
 
     protected <T> T fromJson(ResultActions resultActions, Class<T> clazz) throws Exception {
-        String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
+        String contentAsString = resultActions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
         return objectMapper.readValue(contentAsString, clazz);
+    }
+
+    protected <T> List<T> fromJsonArray(ResultActions resultActions, Class<T> clazz) throws Exception {
+        String contentAsString = resultActions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+        JavaType javaType = objectMapper.getTypeFactory().constructCollectionType(List.class, clazz);
+        return objectMapper.readValue(contentAsString, javaType);
     }
 
     protected ResultActions signUp(SignupRequest signupRequest) throws Exception {
@@ -231,5 +241,9 @@ public class AbstractController extends IntegrationEnvironment {
 
     protected ResultActions deleteAccount(String token) throws Exception {
         return performDeleteWithToken("/deleteAccount", token);
+    }
+
+    protected ResultActions searchAuthors(String query) throws Exception {
+        return performGet("/search/author?q=" + query);
     }
 }

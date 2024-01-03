@@ -27,6 +27,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(a -> a
                         .requestMatchers(HttpMethod.GET, "/favicon.ico").permitAll()
                         .requestMatchers(HttpMethod.GET, "/profile/{id}", "/profile/{id}/likes").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/search/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/reaction/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/author/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/poem/**").permitAll()
