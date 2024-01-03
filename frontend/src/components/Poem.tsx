@@ -1,20 +1,17 @@
 import {GetAnnotationResponse, GetAuthorResponse, GetPoemResponse} from "../types";
-import {useRef} from "react";
+import {useCallback, useEffect, useRef} from "react";
+import {Form} from "react-router-dom";
 
 interface PoemProps {
     poem: GetPoemResponse | undefined;
     author: GetAuthorResponse | undefined;
+    isEditable: boolean;
 }
 
-function Poem({poem, author}: PoemProps) {
+function Poem({poem, author, isEditable}: PoemProps) {
     const poemTextNode = useRef<HTMLPreElement>(null);
 
-    if (!poem || !author) {
-        console.log('poem or author is undefined');
-        return <p>Poem or author not found.</p>;
-    }
-
-    function createRanges(annotations: GetAnnotationResponse[]) {
+    const createRanges = useCallback(function createRanges(annotations: GetAnnotationResponse[]) {
         if (!poemTextNode.current?.firstChild) {
             console.log(poem);
             console.log('poemTextNode.current or poemTextNode.current.firstChild is null');
@@ -26,6 +23,8 @@ function Poem({poem, author}: PoemProps) {
         for (let i = 0; i < n; i++) {
             const annotation = annotations[i];
             const range = document.createRange();
+            console.log(poemTextNode.current.firstChild.textContent);
+            console.log(annotation);
             range.setStart(poemTextNode.current.firstChild, annotation.startRangeIndex);
             range.setEnd(poemTextNode.current.firstChild, annotation.endRangeIndex);
             ranges.push(range);
@@ -56,17 +55,44 @@ function Poem({poem, author}: PoemProps) {
             range.surroundContents(span);
         }
 
-    }
+    }, [poem]);
 
-    setTimeout(() => {
-        createRanges(poem.annotations);
-    }, 100);
+    useEffect(() => {
+        if (poem === undefined) {
+            return;
+        }
+        const id = setTimeout(() => {
+            createRanges(poem.annotations);
+        }, 1000);
+
+        return () => {
+            clearTimeout(id);
+        }
+    }, [createRanges, poem]);
+
+    if (!poem || !author) {
+        console.log('poem or author is undefined');
+        return <p>Poem or author not found.</p>;
+    }
 
     return (
         <div className="container mt-4">
             <div className="card mb-4">
                 <div className="card-body">
-                    <h3 className="card-title">{poem.title}</h3>
+                    <div className="d-flex gap-3">
+                        <h3 className="card-title">{poem.title}</h3>
+                        {isEditable && (
+                            <div className="d-flex gap-3">
+                                <Form action={`edit`} method="get">
+                                    <button type="submit" className="btn btn-primary">Edit</button>
+                                </Form>
+                                <Form action={`delete`} method="post">
+                                    <button type="submit" className="btn btn-danger">Delete</button>
+                                </Form>
+                            </div>
+                        )}
+                    </div>
+
                     <h6 className="card-subtitle mb-2 text-muted">By {author.fullName}</h6>
                     {
                         (poem.schoolGrade ?? poem.complexity) && (

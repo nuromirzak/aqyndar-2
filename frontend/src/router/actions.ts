@@ -102,3 +102,51 @@ export async function createPoemAction({request}: { request: Request }): Promise
     }
 }
 
+export async function updatePoemAction({request}: { request: Request }): Promise<IAlertInfo> {
+    console.log("updatePoemAction", request);
+    const formData = await extractFormData(request, ["id", "title", "content", "authorId", "schoolGrade", "complexity", "topics"]);
+
+    const {id, title, authorId} = formData;
+    const schoolGrade = formData.schoolGrade ? parseInt(formData.schoolGrade) : undefined;
+    const complexity = formData.complexity ? parseInt(formData.complexity) : undefined;
+    const topics = formData.topics ? formData.topics.split(',').map(topic => topic.trim()) : [];
+
+    const authorIdNumber = parseInt(authorId);
+
+    if (isNaN(authorIdNumber)) {
+        return {error: true, title: "Author ID must be a number"};
+    }
+
+    const poemIdNumber = parseInt(id);
+
+    if (isNaN(poemIdNumber)) {
+        return {error: true, title: "Poem ID must be a number"};
+    }
+
+    try {
+        await poemService.updatePoem(poemIdNumber, {title, authorId: authorIdNumber, schoolGrade, complexity, topics});
+        return {error: false, title: "You have successfully updated a poem"};
+    } catch (e) {
+        return processError(e);
+    }
+}
+
+export async function updateAuthorAction({request}: { request: Request }): Promise<IAlertInfo> {
+    console.log("updateAuthorAction", request);
+    const formData = await extractFormData(request, ["id", "fullName"]);
+
+    const {id, fullName} = formData;
+
+    const authorIdNumber = parseInt(id);
+
+    if (isNaN(authorIdNumber)) {
+        return {error: true, title: "Author ID must be a number"};
+    }
+
+    try {
+        await authorService.updateAuthor(authorIdNumber, {fullName});
+        return {error: false, title: "You have successfully updated an author"};
+    } catch (e) {
+        return processError(e);
+    }
+}
