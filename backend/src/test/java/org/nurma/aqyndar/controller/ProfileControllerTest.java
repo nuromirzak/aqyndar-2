@@ -99,9 +99,10 @@ class ProfileControllerTest extends TestDataFactory {
     }
 
     @Test
-    @Disabled("Implement in the future")
     void who_with_deleted_user() throws Exception {
-        deleteAccount(token);
+        deleteAccount(token)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is("success")));
 
         getCurrentUser(token)
                 .andExpect(status().isUnauthorized())

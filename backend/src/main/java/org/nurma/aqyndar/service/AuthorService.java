@@ -6,7 +6,6 @@ import org.nurma.aqyndar.dto.request.PatchAuthorRequest;
 import org.nurma.aqyndar.dto.response.DeleteResponse;
 import org.nurma.aqyndar.dto.response.GetAuthorResponse;
 import org.nurma.aqyndar.entity.Author;
-import org.nurma.aqyndar.entity.Poem;
 import org.nurma.aqyndar.entity.User;
 import org.nurma.aqyndar.exception.ResourceNotFound;
 import org.nurma.aqyndar.exception.ValidationException;
@@ -16,6 +15,7 @@ import org.nurma.aqyndar.util.EntityToDTOMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -23,7 +23,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthorService {
     private static final String AUTHOR_NOT_FOUND = "Author with id %s not found";
-    private static final String AUTHOR_HAVE_POEM = "Author with id %s have poem";
     private static final String AUTHOR_WITH_FULL_NAME_EXISTS = "Author with full name %s already exists";
     private final AuthorRepository authorRepository;
     private final PoemRepository poemRepository;
@@ -82,17 +81,12 @@ public class AuthorService {
         return EntityToDTOMapper.mapAuthorToGetAuthorResponse(savedAuthor);
     }
 
+    @Transactional
     public DeleteResponse deleteAuthor(final int id) {
         Optional<Author> authorOptional = authorRepository.findById(id);
 
         if (authorOptional.isEmpty()) {
             throw new ResourceNotFound(AUTHOR_NOT_FOUND.formatted(id));
-        }
-
-        Poem poem = poemRepository.findByAuthorId(id);
-
-        if (poem != null) {
-            throw new ValidationException(AUTHOR_HAVE_POEM.formatted(id));
         }
 
         authorRepository.deleteById(id);
@@ -102,6 +96,12 @@ public class AuthorService {
 
     public Page<GetAuthorResponse> getAllAuthors(final Pageable pageable) {
         Page<Author> authors = authorRepository.findAll(pageable);
+
+        authors.forEach(author -> {
+            int count = getAuthorPoemsCount(author.getId());
+            author.setPoemsCount(count);
+        });
+
         return authors.map(EntityToDTOMapper::mapAuthorToGetAuthorResponse);
     }
 

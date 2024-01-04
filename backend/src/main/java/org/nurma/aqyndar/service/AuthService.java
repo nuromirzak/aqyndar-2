@@ -11,14 +11,18 @@ import org.nurma.aqyndar.entity.Role;
 import org.nurma.aqyndar.entity.User;
 import org.nurma.aqyndar.exception.CustomAuthenticationException;
 import org.nurma.aqyndar.exception.ValidationException;
+import org.nurma.aqyndar.repository.AnnotationRepository;
+import org.nurma.aqyndar.repository.AuthorRepository;
+import org.nurma.aqyndar.repository.PoemRepository;
+import org.nurma.aqyndar.repository.ReactionRepository;
+import org.nurma.aqyndar.repository.UserRepository;
 import org.nurma.aqyndar.security.JwtAuthentication;
 import org.nurma.aqyndar.security.JwtProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -29,18 +33,20 @@ public class AuthService {
     private static final String USER_NOT_FOUND = "User with email %s not found";
     private static final String USER_ALREADY_EXISTS = "User with email %s already exists";
     private static final String AUTHENTICATION_TYPE_NOT_SUPPORTED = "Authentication type %s not supported";
-    private final UserService userService;
+    private final UserRepository userRepository;
+    private final ReactionRepository reactionRepository;
+    private final PoemRepository poemRepository;
+    private final AuthorRepository authorRepository;
+    private final AnnotationRepository annotationRepository;
     private final RoleService roleService;
-    private final Map<String, String> refreshStorage = new HashMap<>();
     private final JwtProvider jwtProvider;
 
     public JwtResponse signin(final SigninRequest authRequest) {
-        final User user = userService.getByEmail(authRequest.getEmail())
+        final User user = userRepository.findByEmail(authRequest.getEmail())
                 .orElseThrow(() -> new CustomAuthenticationException(USER_NOT_FOUND.formatted(authRequest.getEmail())));
         if (user.getPassword().equals(authRequest.getPassword())) {
             final String accessToken = jwtProvider.generateAccessToken(user);
             final String refreshToken = jwtProvider.generateRefreshToken(user);
-            refreshStorage.put(user.getEmail(), refreshToken);
             return new JwtResponse(accessToken, refreshToken);
         } else {
             throw new CustomAuthenticationException(INVALID_PASSWORD);
@@ -51,13 +57,10 @@ public class AuthService {
         if (jwtProvider.validateRefreshToken(refreshToken)) {
             final Claims claims = jwtProvider.getRefreshClaims(refreshToken);
             final String email = claims.getSubject();
-            final String saveRefreshToken = refreshStorage.get(email);
-            if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
-                final User user = userService.getByEmail(email)
-                        .orElseThrow(() -> new CustomAuthenticationException(USER_NOT_FOUND.formatted(email)));
-                final String accessToken = jwtProvider.generateAccessToken(user);
-                return new JwtResponse(accessToken, null);
-            }
+            final User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new CustomAuthenticationException(USER_NOT_FOUND.formatted(email)));
+            final String accessToken = jwtProvider.generateAccessToken(user);
+            return new JwtResponse(accessToken, null);
         }
         throw new CustomAuthenticationException("Invalid refresh token");
     }
@@ -68,13 +71,12 @@ public class AuthService {
         JwtAuthentication jwtAuthentication = (JwtAuthentication) authentication;
 
         String email = jwtAuthentication.getEmail();
-
-        return userService.getByEmail(email)
+        return userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomAuthenticationException(USER_NOT_FOUND.formatted(email)));
     }
 
     public SignupResponse signup(final SignupRequest signupRequest) {
-        if (userService.getByEmail(signupRequest.getEmail()).isPresent()) {
+        if (userRepository.findByEmail(signupRequest.getEmail()).isPresent()) {
             throw new ValidationException(USER_ALREADY_EXISTS.formatted(signupRequest.getEmail()));
         }
 
@@ -86,15 +88,26 @@ public class AuthService {
         Set<Role> roles = user.getRoles();
         roles.add(roleService.getDefaultRole());
 
-        userService.save(user);
+        userRepository.save(user);
 
         SignupResponse signupResponse = new SignupResponse();
         signupResponse.setEmail(user.getEmail());
         return signupResponse;
     }
 
+    @Transactional
     public void deleteAccount() {
         final User user = getCurrentUserEntity();
-        userService.delete(user);
+
+        reactionRepository.deleteByUserId(user.getId());
+        annotationRepository.deleteByUserId(user.getId());
+        poemRepository.deleteByUserId(user.getId());
+        authorRepository.deleteByUserId(user.getId());
+
+        userRepository.delete(user);
+
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new CustomAuthenticationException(USER_NOT_FOUND.formatted(user.getEmail()));
+        }
     }
 }

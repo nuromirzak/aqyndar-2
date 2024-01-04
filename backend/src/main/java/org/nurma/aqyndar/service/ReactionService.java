@@ -87,7 +87,7 @@ public class ReactionService {
         updateReactionResponse.setId(savedReaction.getId());
         updateReactionResponse.setReactedEntity(savedReaction.getReactedEntity());
         updateReactionResponse.setReactedEntityId(savedReaction.getReactedEntityId());
-        updateReactionResponse.setReactionType(ReactionType.fromValue(savedReaction.getReactionType()));
+        updateReactionResponse.setReactionTypeFromEnum(ReactionType.fromValue(savedReaction.getReactionType()));
         updateReactionResponse.setUserId(savedReaction.getUser().getId());
 
         return updateReactionResponse;

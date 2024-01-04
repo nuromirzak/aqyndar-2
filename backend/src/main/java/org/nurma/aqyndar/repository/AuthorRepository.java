@@ -16,4 +16,6 @@ public interface AuthorRepository extends JpaRepository<Author, Integer> {
 
     @Query("SELECT a FROM Author a WHERE a.fullName ILIKE %:fullName%")
     List<Author> findAuthorsByFullNameIsLikeIgnoreCase(String fullName, Pageable pageable);
+
+    void deleteByUserId(int id);
 }

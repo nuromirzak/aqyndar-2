@@ -54,4 +54,14 @@ public interface ReactionRepository extends JpaRepository<Reaction, Integer> {
             ORDER BY reactionSum DESC
             """)
     List<Object[]> findTopEntities(@Param("entity") ReactedEntity entity);
+
+    @Query("""
+            SELECT r.id FROM Reaction r
+            WHERE r.reactedEntity = :reactedEntity
+            AND r.reactedEntityId = :reactedEntityId
+            """)
+    List<Integer> findIdsByReactedEntityAndReactedEntityId(@Param("reactedEntity") ReactedEntity reactedEntity,
+                                                           @Param("reactedEntityId") int reactedEntityId);
+
+    void deleteByUserId(int userId);
 }

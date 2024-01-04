@@ -10,10 +10,12 @@ import org.nurma.aqyndar.entity.Author;
 import org.nurma.aqyndar.entity.Poem;
 import org.nurma.aqyndar.entity.Topic;
 import org.nurma.aqyndar.entity.User;
+import org.nurma.aqyndar.entity.enums.ReactedEntity;
 import org.nurma.aqyndar.exception.ResourceNotFound;
 import org.nurma.aqyndar.exception.ValidationException;
 import org.nurma.aqyndar.repository.AuthorRepository;
 import org.nurma.aqyndar.repository.PoemRepository;
+import org.nurma.aqyndar.repository.ReactionRepository;
 import org.nurma.aqyndar.repository.TopicRepository;
 import org.nurma.aqyndar.util.EntityToDTOMapper;
 import org.springframework.data.domain.Page;
@@ -32,6 +34,7 @@ public class PoemService {
     private final AuthorRepository authorRepository;
     private final AuthService authService;
     private final TopicRepository topicRepository;
+    private final ReactionRepository reactionRepository;
     public static final int MIN_GRADE = 1;
     public static final int MAX_GRADE = 12;
     public static final int MIN_COMPLEXITY = 1;
@@ -156,6 +159,9 @@ public class PoemService {
         if (poemOptional.isEmpty()) {
             throw new ResourceNotFound(POEM_NOT_FOUND.formatted(id));
         }
+
+        List<Integer> reactionIds = reactionRepository.findIdsByReactedEntityAndReactedEntityId(ReactedEntity.POEM, id);
+        reactionRepository.deleteAllById(reactionIds);
 
         poemRepository.deleteById(id);
 

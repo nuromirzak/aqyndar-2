@@ -3,23 +3,36 @@ package org.nurma.aqyndar.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.nurma.aqyndar.configuration.AbstractController;
+import org.nurma.aqyndar.configuration.TestDataFactory;
 import org.nurma.aqyndar.constant.ExceptionTitle;
 import org.nurma.aqyndar.dto.request.*;
 import org.nurma.aqyndar.dto.response.GetAnnotationResponse;
 import org.nurma.aqyndar.dto.response.GetAuthorResponse;
 import org.nurma.aqyndar.dto.response.GetPoemResponse;
 import org.nurma.aqyndar.dto.response.JwtResponse;
+import org.nurma.aqyndar.dto.response.UpdateReactionResponse;
+import org.nurma.aqyndar.entity.Reaction;
+import org.nurma.aqyndar.entity.enums.ReactedEntity;
+import org.nurma.aqyndar.repository.ReactionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @Transactional
-class AnnotationControllerTest extends AbstractController {
+class AnnotationControllerTest extends TestDataFactory {
+    @Autowired
+    private ReactionRepository reactionRepository;
+
     private static final String EMAIL = "steve@gmail.com";
     private static final String FIRST_NAME = "Stevie";
     private static final String PASSWORD = "12345678";
@@ -236,6 +249,30 @@ class AnnotationControllerTest extends AbstractController {
         deleteAnnotation(annotationId, token)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("success"));
+    }
+
+    @Test
+    void deleteAnnotationWithReaction() throws Exception {
+        int annotationId = fromJson(
+                createAnnotation(new CreateAnnotationRequest(ANNOTATION, START_RANGE_INDEX, END_RANGE_INDEX, poemId), token),
+                GetAnnotationResponse.class)
+                .getId();
+
+        UpdateReactionRequest updateReactionRequest = new UpdateReactionRequest(ReactedEntity.ANNOTATION.name(), annotationId, 1);
+
+        UpdateReactionResponse reactionResponse = updateReactionWithRandomUser(updateReactionRequest);
+
+        deleteAnnotation(annotationId, token)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("success"));
+
+        getAnnotation(annotationId)
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.NOT_FOUND)));
+
+        Optional<Reaction> reactionOptional = reactionRepository.findById(reactionResponse.getId());
+
+        assertEquals(Optional.empty(), reactionOptional);
     }
 
     @Test

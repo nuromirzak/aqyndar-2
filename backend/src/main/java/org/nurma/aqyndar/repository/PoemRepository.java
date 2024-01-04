@@ -21,4 +21,6 @@ public interface PoemRepository extends JpaRepository<Poem, Integer> {
         WHERE p.id = :poemId
         """)
     String findTitleById(@Param("poemId") Integer poemId);
+
+    void deleteByUserId(int id);
 }

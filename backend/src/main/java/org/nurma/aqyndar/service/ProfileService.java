@@ -29,14 +29,7 @@ public class ProfileService {
     private static final String USER_NOT_FOUND = "User with email %s not found";
 
     public GetWhoResponse getCurrentUser() {
-        User user;
-
-        try {
-            user = authService.getCurrentUserEntity();
-        } catch (Exception e) {
-            log.warn(e.getMessage());
-            user = new User();
-        }
+        User user = authService.getCurrentUserEntity();
 
         return EntityToDTOMapper.mapUserToGetWhoResponse(user);
     }

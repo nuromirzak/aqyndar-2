@@ -3,7 +3,7 @@ package org.nurma.aqyndar.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.nurma.aqyndar.configuration.AbstractController;
+import org.nurma.aqyndar.configuration.TestDataFactory;
 import org.nurma.aqyndar.constant.ExceptionTitle;
 import org.nurma.aqyndar.dto.request.CreateAnnotationRequest;
 import org.nurma.aqyndar.dto.request.CreateAuthorRequest;
@@ -11,18 +11,27 @@ import org.nurma.aqyndar.dto.request.CreatePoemRequest;
 import org.nurma.aqyndar.dto.request.PatchPoemRequest;
 import org.nurma.aqyndar.dto.request.SigninRequest;
 import org.nurma.aqyndar.dto.request.SignupRequest;
+import org.nurma.aqyndar.dto.request.UpdateReactionRequest;
 import org.nurma.aqyndar.dto.response.GetAnnotationResponse;
 import org.nurma.aqyndar.dto.response.GetAuthorResponse;
 import org.nurma.aqyndar.dto.response.GetPoemResponse;
+import org.nurma.aqyndar.dto.response.GetReactionResponse;
 import org.nurma.aqyndar.dto.response.GetWhoResponse;
 import org.nurma.aqyndar.dto.response.JwtResponse;
+import org.nurma.aqyndar.dto.response.UpdateReactionResponse;
+import org.nurma.aqyndar.entity.Reaction;
+import org.nurma.aqyndar.entity.enums.ReactedEntity;
+import org.nurma.aqyndar.repository.ReactionRepository;
 import org.nurma.aqyndar.service.PoemService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,7 +40,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @Transactional
-class PoemControllerTest extends AbstractController {
+class PoemControllerTest extends TestDataFactory {
+    @Autowired
+    private ReactionRepository reactionRepository;
+
     private static final String EMAIL = "steve@gmail.com";
     private static final String FIRST_NAME = "Stevie";
     private static final String PASSWORD = "12345678";
@@ -120,11 +132,13 @@ class PoemControllerTest extends AbstractController {
     }
 
     @Test
-    @Disabled
-    void testInvalidPaginationParameters() throws Exception {
-        getPoems(-1, -10, null)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content.length()").value(0));
+    void negativePaginationShouldReturnTheFirstPage() throws Exception {
+        for (int i = -1; i >= -5; i--) {
+            getPoems(i, null, null)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content.length()").value(20))
+                    .andExpect(jsonPath("$.first").value(true));
+        }
     }
 
     @Test
@@ -168,8 +182,6 @@ class PoemControllerTest extends AbstractController {
                 GetAnnotationResponse.class).getId();
 
         GetPoemResponse getPoemResponse = fromJson(getPoem(poemId), GetPoemResponse.class);
-
-        System.out.printf("getPoemResponse=%s\n", getPoemResponse);
 
         assertEquals(poemId, getPoemResponse.getId());
         assertEquals(POEM_TITLE, getPoemResponse.getTitle());
@@ -600,6 +612,48 @@ class PoemControllerTest extends AbstractController {
         deletePoem(poemId, token)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("success"));
+    }
+
+    @Test
+    void deletePoemWithAnnotation() throws Exception {
+        int poemId = fromJson(
+                createPoem(new CreatePoemRequest(POEM_TITLE, POEM_CONTENT, authorId), token),
+                GetPoemResponse.class)
+                .getId();
+
+        GetAnnotationResponse annotationResponse = createRandomAnnotationWithPoemId(poemId);
+
+        deletePoem(poemId, token)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("success"));
+
+        getAnnotation(annotationResponse.getId())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.NOT_FOUND)));
+    }
+
+    @Test
+    void deletePoemWithReaction() throws Exception {
+        int poemId = fromJson(
+                createPoem(new CreatePoemRequest(POEM_TITLE, POEM_CONTENT, authorId), token),
+                GetPoemResponse.class)
+                .getId();
+
+        UpdateReactionRequest updateReactionRequest = new UpdateReactionRequest(ReactedEntity.POEM.name(), poemId, 1);
+
+        UpdateReactionResponse reactionResponse = updateReactionWithRandomUser(updateReactionRequest);
+
+        deletePoem(poemId, token)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("success"));
+
+        getPoem(poemId)
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.NOT_FOUND)));
+
+        Optional<Reaction> reactionOptional = reactionRepository.findById(reactionResponse.getId());
+
+        assertEquals(Optional.empty(), reactionOptional);
     }
 
     @Test

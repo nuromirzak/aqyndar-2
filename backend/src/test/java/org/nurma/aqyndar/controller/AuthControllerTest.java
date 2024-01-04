@@ -1,7 +1,6 @@
 package org.nurma.aqyndar.controller;
 
 import com.github.javafaker.Faker;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -9,10 +8,15 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.nurma.aqyndar.configuration.AbstractController;
 import org.nurma.aqyndar.constant.ExceptionTitle;
 import org.nurma.aqyndar.dto.request.CreateAuthorRequest;
+import org.nurma.aqyndar.dto.request.CreatePoemRequest;
 import org.nurma.aqyndar.dto.request.RefreshRequest;
 import org.nurma.aqyndar.dto.request.SigninRequest;
 import org.nurma.aqyndar.dto.request.SignupRequest;
+import org.nurma.aqyndar.dto.request.UpdateReactionRequest;
+import org.nurma.aqyndar.dto.response.GetAuthorResponse;
+import org.nurma.aqyndar.dto.response.GetPoemResponse;
 import org.nurma.aqyndar.dto.response.JwtResponse;
+import org.nurma.aqyndar.entity.enums.ReactedEntity;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -175,7 +179,6 @@ class AuthControllerTest extends AbstractController {
     }
 
     @Test
-    @Disabled
     void deleteAccountWithAuthors() throws Exception {
         SignupRequest signupRequest = new SignupRequest(EMAIL, FIRST_NAME, PASSWORD);
         signup_Success(signupRequest);
@@ -199,7 +202,78 @@ class AuthControllerTest extends AbstractController {
                 .andExpect(status().isOk());
 
         deleteAccount(token)
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.title", is(ExceptionTitle.VALIDATION)));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is("success")));
+    }
+
+    @Test
+    void deletingAccountWithReaction() throws Exception {
+        SignupRequest signupRequest = new SignupRequest(EMAIL, FIRST_NAME, PASSWORD);
+        signup_Success(signupRequest);
+
+        String token = fromJson(
+                signin(new SigninRequest(EMAIL, PASSWORD)),
+                JwtResponse.class
+        ).getAccessToken();
+
+        Faker faker = new Faker();
+
+        CreateAuthorRequest createAuthorRequest = new CreateAuthorRequest(
+                faker.name().firstName()
+        );
+        GetAuthorResponse getAuthorsResponse = fromJson(
+                createAuthor(createAuthorRequest, token),
+                GetAuthorResponse.class
+        );
+
+        CreatePoemRequest createPoemRequest = new CreatePoemRequest(
+                faker.book().title(),
+                faker.lorem().paragraph(),
+                getAuthorsResponse.getId()
+        );
+        GetPoemResponse getPoemResponse = fromJson(
+                createPoem(createPoemRequest, token),
+                GetPoemResponse.class
+        );
+
+        UpdateReactionRequest updateReactionRequest = new UpdateReactionRequest(
+                ReactedEntity.POEM.name(),
+                getPoemResponse.getId(),
+                1
+        );
+        updateReaction(updateReactionRequest, token)
+                .andExpect(status().isOk());
+
+        deleteAccount(token)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is("success")));
+    }
+
+    @Test
+    void deletingAuthorShouldNotDeleteAccount() throws Exception {
+        SignupRequest signupRequest = new SignupRequest(EMAIL, FIRST_NAME, PASSWORD);
+        signup_Success(signupRequest);
+
+        String token = fromJson(
+                signin(new SigninRequest(EMAIL, PASSWORD)),
+                JwtResponse.class
+        ).getAccessToken();
+
+        Faker faker = new Faker();
+
+        CreateAuthorRequest createAuthorRequest = new CreateAuthorRequest(
+                faker.name().firstName()
+        );
+        GetAuthorResponse getAuthorsResponse = fromJson(
+                createAuthor(createAuthorRequest, token),
+                GetAuthorResponse.class
+        );
+
+        deleteAuthor(getAuthorsResponse.getId(), token)
+                .andExpect(status().isOk());
+
+        getCurrentUser(token)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email", is(EMAIL)));
     }
 }

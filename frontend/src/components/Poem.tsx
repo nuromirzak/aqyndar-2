@@ -1,14 +1,17 @@
-import {GetAnnotationResponse, GetAuthorResponse, GetPoemResponse} from "../types";
+import {GetAnnotationResponse, GetAuthorResponse, GetPoemResponse, IAlertInfo} from "../types";
 import {useCallback, useEffect, useRef} from "react";
 import {Form} from "react-router-dom";
+import StatusAlert from "./StatusAlert.tsx";
 
 interface PoemProps {
     poem: GetPoemResponse | undefined;
     author: GetAuthorResponse | undefined;
     isEditable: boolean;
+    deleteStatus: IAlertInfo | null;
+    onDeleteClick: () => void;
 }
 
-function Poem({poem, author, isEditable}: PoemProps) {
+function Poem({poem, author, isEditable, deleteStatus, onDeleteClick}: PoemProps) {
     const poemTextNode = useRef<HTMLPreElement>(null);
 
     const createRanges = useCallback(function createRanges(annotations: GetAnnotationResponse[]) {
@@ -82,14 +85,15 @@ function Poem({poem, author, isEditable}: PoemProps) {
                     <div className="d-flex gap-3">
                         <h3 className="card-title">{poem.title}</h3>
                         {isEditable && (
-                            <div className="d-flex gap-3">
+                            <div className="d-flex align-items-start gap-3">
                                 <Form action={`edit`} method="get">
                                     <button type="submit" className="btn btn-primary">Edit</button>
                                 </Form>
-                                <Form action={`delete`} method="post">
-                                    <button type="submit" className="btn btn-danger">Delete</button>
-                                </Form>
+                                <button type="button" className="btn btn-danger" onClick={onDeleteClick}>Delete</button>
                             </div>
+                        )}
+                        {deleteStatus && (
+                            <StatusAlert {...deleteStatus}/>
                         )}
                     </div>
 

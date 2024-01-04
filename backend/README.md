@@ -19,4 +19,5 @@
 - Auth
     - [ ] Review status codes for all endpoints (401 and 403)
 - Annotation
-    - [ ] Review annotation boundaries 
+    - [ ] Review annotation boundaries (negative, zero, and too large)
+    - [ ] https://www.baeldung.com/hibernate-inheritance

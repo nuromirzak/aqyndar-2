@@ -9,7 +9,7 @@ interface LoginActionProps {
     setUser: (user: AccessTokenPayload | null) => void;
 }
 
-const processError = (e: unknown): IAlertInfo => {
+export const processError = (e: unknown): IAlertInfo => {
     let errorTitle = "Unknown error";
     let errorDetail = "An error occurred";
 

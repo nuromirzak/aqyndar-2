@@ -12,4 +12,6 @@ public interface AnnotationRepository extends JpaRepository<Annotation, Integer>
             WHERE a.user.id = :userId
             """)
     List<Integer> findIdsByUserId(int userId);
+
+    void deleteByUserId(int id);
 }

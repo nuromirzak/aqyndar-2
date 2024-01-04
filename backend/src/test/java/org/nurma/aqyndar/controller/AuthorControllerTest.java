@@ -11,6 +11,7 @@ import org.nurma.aqyndar.dto.request.PatchAuthorRequest;
 import org.nurma.aqyndar.dto.request.SigninRequest;
 import org.nurma.aqyndar.dto.request.SignupRequest;
 import org.nurma.aqyndar.dto.response.GetAuthorResponse;
+import org.nurma.aqyndar.dto.response.GetPoemResponse;
 import org.nurma.aqyndar.dto.response.JwtResponse;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.ResultActions;
@@ -97,11 +98,13 @@ class AuthorControllerTest extends AbstractController {
     }
 
     @Test
-    @Disabled
-    void testInvalidPaginationParameters() throws Exception {
-        getAuthors(-1, -10, null)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
+    void negativePaginationShouldReturnTheFirstPage() throws Exception {
+        for (int i = -1; i >= -5; i--) {
+            getAuthors(i, null, null)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content.length()").value(20))
+                    .andExpect(jsonPath("$.first").value(true));
+        }
     }
 
     @Test
@@ -253,17 +256,49 @@ class AuthorControllerTest extends AbstractController {
     }
 
     @Test
+    @Disabled("Use inheritance for reactions")
     void deleteAuthorWithPoem() throws Exception {
         int authorId = fromJson(
                 createAuthor(new CreateAuthorRequest(AUTHOR_FULL_NAME), token),
                 GetAuthorResponse.class)
                 .getId();
 
-        createPoem(new CreatePoemRequest(POEM_TITLE, POEM_CONTENT, authorId), token);
+        GetPoemResponse getPoemResponse = fromJson(
+                createPoem(new CreatePoemRequest(POEM_TITLE, POEM_CONTENT, authorId), token),
+                GetPoemResponse.class
+        );
 
         deleteAuthor(authorId, token)
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.title", is(ExceptionTitle.VALIDATION)));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("success"));
+
+        getPoem(getPoemResponse.getId())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.title", is(ExceptionTitle.NOT_FOUND)));
+    }
+
+    @Test
+    void deletingPoemShouldNotDeleteAuthor() throws Exception {
+        int authorId = fromJson(
+                createAuthor(new CreateAuthorRequest(AUTHOR_FULL_NAME), token),
+                GetAuthorResponse.class)
+                .getId();
+
+        GetPoemResponse getPoemResponse = fromJson(
+                createPoem(new CreatePoemRequest(POEM_TITLE, POEM_CONTENT, authorId), token),
+                GetPoemResponse.class
+        );
+
+        deletePoem(getPoemResponse.getId(), token)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("success"));
+
+        getAuthor(authorId)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(authorId))
+                .andExpect(jsonPath("$.fullName").value(AUTHOR_FULL_NAME))
+                .andExpect(jsonPath("$.userId").isNotEmpty())
+                .andExpect(jsonPath("$.poemsCount").value(0));
     }
 
     @Test

@@ -17,7 +17,7 @@ public class UpdateReactionResponse {
     private int reactionType;
     private int userId;
 
-    public void setReactionType(final ReactionType reactionType) {
-        this.reactionType = reactionType.getValue();
+    public void setReactionTypeFromEnum(final ReactionType reactionTypeEnum) {
+        this.reactionType = reactionTypeEnum.getValue();
     }
 }
