@@ -35,4 +35,4 @@ voice-service:
   storage:
     # local, s3
     type: local
-    local-path: /home/nur/aqyndar-files/
+    local-path: aqyndar-files

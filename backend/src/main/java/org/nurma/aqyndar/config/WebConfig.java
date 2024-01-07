@@ -8,6 +8,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 @Configuration
@@ -45,7 +46,9 @@ public class WebConfig {
 
     private void addResourceHandlers(final ResourceHandlerRegistry registry) {
         if (storageType.equals("local")) {
-            log.info("Add resource handlers for local storage");
+            String homeDirectory = System.getProperty("user.home");
+            this.localPath = Paths.get(homeDirectory, localPath).toString();
+            log.info("Add resource handlers for local storage with path: {}", localPath);
             registry.addResourceHandler("/files/**")
                     .addResourceLocations("file:" + localPath);
         }

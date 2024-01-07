@@ -17,24 +17,29 @@ import java.util.UUID;
 public class LocalStorageService implements AudioStorageService {
     private final String localPath;
 
-    public LocalStorageService(@Value("${voice-service.storage.local-path}") final String localPath)
-            throws IOException {
-        log.info("Creating local storage service with path: {}", localPath);
-        this.localPath = localPath;
-        createDirectoryIfNotExists(localPath);
+    public LocalStorageService(@Value("${voice-service.storage.local-path}") final String localPath) {
+        String homeDirectory = System.getProperty("user.home");
+        this.localPath = Paths.get(homeDirectory, localPath).toString();
+
+        log.info("Creating local storage service with path: {}", this.localPath);
     }
 
     @Override
     public String store(final byte[] audioData) {
-        String fileName = UUID.randomUUID() + ".wav";
-        Path path = Paths.get(localPath, fileName);
         try {
-            Files.write(path, audioData);
-        } catch (Exception e) {
-            log.error("Error while storing audio file", e);
+            createDirectoryIfNotExists(localPath);
+            String fileName = UUID.randomUUID() + ".wav";
+            Path path = Paths.get(localPath, fileName);
+            try {
+                Files.write(path, audioData);
+            } catch (Exception e) {
+                log.error("Error while storing audio file", e);
+                throw new RuntimeException(e);
+            }
+            return fileName;
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return fileName;
     }
 
     private void createDirectoryIfNotExists(final String path) throws IOException {
