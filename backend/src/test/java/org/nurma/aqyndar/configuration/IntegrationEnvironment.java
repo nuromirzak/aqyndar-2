@@ -59,5 +59,8 @@ abstract public class IntegrationEnvironment {
 
         registry.add("cors.allowedOrigins",
                 () -> "http://localhost:5173,http://localhost:4173,https://aqyndar.com");
+
+
+        registry.add("voice-service.base-url", () -> "http://localhost:8000/");
     }
 }

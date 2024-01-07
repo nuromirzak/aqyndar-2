@@ -2,6 +2,7 @@ import {GetAnnotationResponse, GetAuthorResponse, GetPoemResponse, IAlertInfo} f
 import {useCallback, useEffect, useRef} from "react";
 import {Form} from "react-router-dom";
 import StatusAlert from "./StatusAlert.tsx";
+import VoiceComponent from "./VoiceComponent.tsx";
 
 interface PoemProps {
     poem: GetPoemResponse | undefined;
@@ -118,6 +119,7 @@ function Poem({poem, author, isEditable, deleteStatus, onDeleteClick}: PoemProps
                     <div className="card-text">
                         <pre ref={poemTextNode}>{poem.content}</pre>
                     </div>
+                    <VoiceComponent text={poem.content}/>
                 </div>
             </div>
 

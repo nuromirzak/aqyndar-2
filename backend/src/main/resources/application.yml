@@ -27,3 +27,12 @@ logging:
 
 cors:
   allowedOrigins: ${CORS_ALLOWED_ORIGINS}
+
+voice-service:
+  base-url: ${VOICE_SERVICE_BASE_URL:}
+  connect-timeout: 5000
+  read-timeout: 120000
+  storage:
+    # local, s3
+    type: local
+    local-path: /home/nur/aqyndar-files/

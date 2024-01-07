@@ -1,4 +1,4 @@
-import {ReactedEntity} from "./enums.ts";
+import {ReactedEntity, TextToSpeechStatus} from "./enums.ts";
 
 export interface Page<T> {
     content: T[];
@@ -121,3 +121,12 @@ export interface UpdateReactionResponse {
     reactionType: number;
     userId: number;
 }
+
+export interface InitiateTextToSpeechConversionResponse {
+    uuid: string;
+}
+
+export type TextToSpeechResultResponse =
+    | { status: TextToSpeechStatus.PROCESSING }
+    | { status: TextToSpeechStatus.COMPLETED; url: string }
+    | { status: TextToSpeechStatus.FAILED; error: string };

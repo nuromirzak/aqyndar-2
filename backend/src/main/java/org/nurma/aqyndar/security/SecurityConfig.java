@@ -33,6 +33,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/author/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/poem/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/annotation/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/voice/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/files/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/signup", "/signin", "/refresh").permitAll()
                         .anyRequest().authenticated()
                 )

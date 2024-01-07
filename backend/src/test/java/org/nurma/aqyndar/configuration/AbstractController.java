@@ -246,4 +246,12 @@ public class AbstractController extends IntegrationEnvironment {
     protected ResultActions searchAuthors(String query) throws Exception {
         return performGet("/search/author?q=" + query);
     }
+
+    protected ResultActions initiateTextToSpeechConversion(String text) throws Exception {
+        return performGet("/voice/convert?text=" + text);
+    }
+
+    protected ResultActions getConversionResult(String uuid) throws Exception {
+        return performGet("/voice/result/" + uuid);
+    }
 }
