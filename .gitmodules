@@ -1,0 +1,3 @@
+[submodule "Kazakh_TTS"]
+	path = Kazakh_TTS
+	url = git@github.com:nuromirzak/Kazakh_TTS.git

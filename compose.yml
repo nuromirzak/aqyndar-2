@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    network_mode: "host"
+    env_file:
+      - ./backend/.env
+
+  kazakh_tts:
+    build:
+      context: ./Kazakh_TTS
+      dockerfile: Dockerfile
+    network_mode: "host"
+
