@@ -21,3 +21,7 @@
 - Annotation
     - [ ] Review annotation boundaries (negative, zero, and too large)
     - [ ] https://www.baeldung.com/hibernate-inheritance
+
+## Docker 
+
+`docker run -v ./docker_logs:/app/logs -p 8080:8080 --env-file .env --network="host" aqyndar-backend`
